@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:eventure/screens/splash_screen.dart';
+import 'package:eventure/theme/theme.dart' as AppTheme;
 import 'screens/login_screen.dart';
 import 'screens/register_screen.dart';
 import 'thema/thema.dart'; 
@@ -13,14 +15,13 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      theme: AppTheme.lightTheme,
+      darkTheme: AppTheme.darkTheme,
+      themeMode: ThemeMode.system,
+      home: const SplashScreen(), // Splash ilk açılan ekran
       title: 'Eventure',
       debugShowCheckedModeBanner: false,
-
-      theme: lightTheme, 
-      darkTheme: darkTheme, 
-      themeMode: ThemeMode.system, 
-
-      initialRoute: '/login',
+      initialRoute: '/',
       routes: {
         '/login': (context) => const LoginScreen(),
         '/register': (context) => const RegisterScreen(),
