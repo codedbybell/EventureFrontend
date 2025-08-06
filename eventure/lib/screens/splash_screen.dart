@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:eventure/screens/login_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:eventure/screens/home_page.dart'; // doğru yolu kullan!
 import 'package:eventure/theme/theme.dart' as AppTheme;
@@ -19,7 +20,7 @@ class _SplashScreenState extends State<SplashScreen> {
     Timer(const Duration(seconds: 2), () {
       Navigator.pushReplacement(
         context,
-        MaterialPageRoute(builder: (context) => const AnaEkran()),
+        MaterialPageRoute(builder: (context) => const LoginScreen()),
       );
     });
   }
