@@ -3,7 +3,7 @@ import 'package:eventure/screens/splash_screen.dart';
 import 'package:eventure/theme/theme.dart' as AppTheme;
 import 'screens/login_screen.dart';
 import 'screens/register_screen.dart';
-import 'thema/thema.dart'; 
+import 'theme/theme.dart'; 
 
 void main() {
   runApp(const MyApp());
