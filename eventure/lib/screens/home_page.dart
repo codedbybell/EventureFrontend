@@ -1,12 +1,12 @@
-// lib/screens/home_page.dart (UPDATED)
+// lib/screens/home_page.dart (HATALARI DÜZELTİLMİŞ TAM KOD)
 
-import 'package:eventure/screens/category_events_page.dart'; // YENİ EKLENDİ
-import 'package:eventure/screens/event_detail_page.dart';
-import 'package:flutter/material.dart';
 import 'dart:async';
+import 'package:flutter/material.dart'; // <<--- EKSİK OLAN VE TÜM HATALARI DÜZELTEN SATIR
 
-// --- DATA MODIFIED WITH 'category' KEY ---
-// This master list will be used by the category page.
+import 'package:eventure/screens/category_events_page.dart';
+import 'package:eventure/screens/event_detail_page.dart';
+
+// --- Bütün Etkinlikleri İçeren Ana Liste ---
 final List<Map<String, dynamic>> allEvents = [
   // Upcoming Events
   {
@@ -19,7 +19,7 @@ final List<Map<String, dynamic>> allEvents = [
     'time': '08:00 PM - 11:00 PM',
     'tags': ['Music', 'Pop', 'World Tour'],
     'organizer': 'Live Nation',
-    'category': 'Concerts', // EKLENDİ
+    'category': 'Concerts',
   },
   {
     'image':
@@ -31,7 +31,7 @@ final List<Map<String, dynamic>> allEvents = [
     'time': '04:00 PM - 02:00 AM',
     'tags': ['Music', 'Festival', 'Summer'],
     'organizer': 'Eventure Org.',
-    'category': 'Concerts', // EKLENDİ
+    'category': 'Concerts',
   },
   {
     'image':
@@ -43,7 +43,7 @@ final List<Map<String, dynamic>> allEvents = [
     'time': '10:00 AM - 06:00 PM',
     'tags': ['Technology', 'Festival', 'Aviation', 'Free'],
     'organizer': 'T3 Foundation',
-    'category': 'Conferences', // EKLENDİ
+    'category': 'Conferences',
   },
   {
     'image':
@@ -55,7 +55,7 @@ final List<Map<String, dynamic>> allEvents = [
     'time': '09:00 PM - 12:00 AM',
     'tags': ['Music', 'Indie', 'Concert'],
     'organizer': 'PSM Music',
-    'category': 'Concerts', // EKLENDİ
+    'category': 'Concerts',
   },
   // Popular Events
   {
@@ -67,7 +67,7 @@ final List<Map<String, dynamic>> allEvents = [
     'time': '05:00 PM - 12:00 AM',
     'tags': ['Music', 'Festival', 'Istanbul'],
     'organizer': 'Ministry of Culture and Tourism',
-    'category': 'Concerts', // EKLENDİ
+    'category': 'Concerts',
   },
   {
     'image': 'https://iksv.org/i/content/21854_1_fm1366.jpg',
@@ -78,7 +78,7 @@ final List<Map<String, dynamic>> allEvents = [
     'time': '11:00 AM - 11:30 PM',
     'tags': ['Cinema', 'Festival', 'Art'],
     'organizer': 'IKSV',
-    'category': 'Cinema', // EKLENDİ
+    'category': 'Cinema',
   },
   {
     'image':
@@ -90,7 +90,7 @@ final List<Map<String, dynamic>> allEvents = [
     'time': '03:00 PM - 03:00 AM',
     'tags': ['Music', 'Rock', 'Festival'],
     'organizer': 'Milyon Production',
-    'category': 'Concerts', // EKLENDİ
+    'category': 'Concerts',
   },
   {
     'image':
@@ -102,7 +102,7 @@ final List<Map<String, dynamic>> allEvents = [
     'time': '09:30 PM - 12:00 AM',
     'tags': ['Music', 'Jazz', 'Live'],
     'organizer': 'Nardis',
-    'category': 'Concerts', // EKLENDİ
+    'category': 'Concerts',
   },
   {
     'image':
@@ -114,11 +114,10 @@ final List<Map<String, dynamic>> allEvents = [
     'time': '09:00 AM - 04:00 PM',
     'tags': ['Nature', 'Hiking', 'Outdoor'],
     'organizer': 'Nature Lovers Club',
-    'category': 'Nature', // EKLENDİ
+    'category': 'Nature',
   },
 ];
 
-// These lists are now filtered from the master list for the home page UI
 final List<Map<String, dynamic>> upcomingEvents = allEvents
     .where(
       (e) => [
@@ -171,11 +170,14 @@ class EcommerceHomePage extends StatefulWidget {
 }
 
 class _EcommerceHomePageState extends State<EcommerceHomePage> {
-  // ... (initState, dispose, and other methods remain the same)
   int _currentBottomNavIndex = 0;
   final PageController _pageController = PageController();
   int _currentBannerPage = 0;
   Timer? _timer;
+
+  final TextEditingController _searchController = TextEditingController();
+  String _searchQuery = '';
+  List<Map<String, dynamic>> _searchResults = [];
 
   @override
   void initState() {
@@ -191,13 +193,45 @@ class _EcommerceHomePageState extends State<EcommerceHomePage> {
         );
       }
     });
+    _searchController.addListener(() {
+      if (_searchController.text.isEmpty && _searchQuery.isNotEmpty) {
+        _updateSearchResults('');
+      }
+    });
   }
 
   @override
   void dispose() {
     _pageController.dispose();
+    _searchController.dispose();
     _timer?.cancel();
     super.dispose();
+  }
+
+  void _updateSearchResults(String query) {
+    setState(() {
+      _searchQuery = query;
+      if (query.isEmpty) {
+        _searchResults = [];
+      } else {
+        final lowerCaseQuery = query.toLowerCase();
+        _searchResults = allEvents.where((event) {
+          final title = event['title'].toString().toLowerCase();
+          final subtitle = event['subtitle'].toString().toLowerCase();
+          final organizer = event['organizer'].toString().toLowerCase();
+          final category = event['category'].toString().toLowerCase();
+          return title.contains(lowerCaseQuery) ||
+              subtitle.contains(lowerCaseQuery) ||
+              organizer.contains(lowerCaseQuery) ||
+              category.contains(lowerCaseQuery);
+        }).toList();
+      }
+    });
+  }
+
+  void _clearSearch() {
+    FocusScope.of(context).unfocus();
+    _searchController.clear();
   }
 
   void _navigateToDetail(Map<String, dynamic> eventData) {
@@ -209,7 +243,6 @@ class _EcommerceHomePageState extends State<EcommerceHomePage> {
     );
   }
 
-  // YENİ EKLENDİ
   void _navigateToCategoryPage(String categoryName) {
     Navigator.push(
       context,
@@ -221,57 +254,51 @@ class _EcommerceHomePageState extends State<EcommerceHomePage> {
 
   @override
   Widget build(BuildContext context) {
-    // ... (Scaffold and other widgets remain the same)
-    return Scaffold(
-      bottomNavigationBar: BottomNavigationBar(
-        currentIndex: _currentBottomNavIndex,
-        onTap: (index) {
-          setState(() {
-            _currentBottomNavIndex = index;
-          });
-        },
-        backgroundColor: Theme.of(context).scaffoldBackgroundColor,
-        selectedItemColor: Theme.of(context).colorScheme.onBackground,
-        unselectedItemColor: Theme.of(
-          context,
-        ).colorScheme.onBackground.withOpacity(0.6),
-        type: BottomNavigationBarType.fixed,
-        showSelectedLabels: false,
-        showUnselectedLabels: false,
-        items: const [
-          BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Home'),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.explore_outlined),
-            label: 'Explore',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.person_outline),
-            label: 'Profile',
-          ),
-        ],
-      ),
-      body: SafeArea(
-        child: SingleChildScrollView(
+    return WillPopScope(
+      onWillPop: () async {
+        if (_searchQuery.isNotEmpty) {
+          _clearSearch();
+          return false;
+        }
+        return true;
+      },
+      child: Scaffold(
+        bottomNavigationBar: BottomNavigationBar(
+          currentIndex: _currentBottomNavIndex,
+          onTap: (index) {
+            setState(() {
+              _currentBottomNavIndex = index;
+            });
+          },
+          backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+          selectedItemColor: Theme.of(context).colorScheme.onBackground,
+          unselectedItemColor: Theme.of(
+            context,
+          ).colorScheme.onBackground.withOpacity(0.6),
+          type: BottomNavigationBarType.fixed,
+          showSelectedLabels: false,
+          showUnselectedLabels: false,
+          items: const [
+            BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Home'),
+            BottomNavigationBarItem(
+              icon: Icon(Icons.explore_outlined),
+              label: 'Explore',
+            ),
+            BottomNavigationBarItem(
+              icon: Icon(Icons.person_outline),
+              label: 'Profile',
+            ),
+          ],
+        ),
+        body: SafeArea(
           child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               _buildSearchBar(context),
-              const SizedBox(height: 24),
-              _buildSectionHeader(context, title: "Upcoming Events"),
-              _buildUpcomingEventsSlider(context),
-              const SizedBox(height: 24),
-              _buildSectionHeader(context, title: "Events", showArrow: true),
-              const SizedBox(height: 16),
-              _buildEventCategories(context),
-              const SizedBox(height: 24),
-              _buildSectionHeader(
-                context,
-                title: "Popular Events",
-                showArrow: true,
+              Expanded(
+                child: _searchQuery.isEmpty
+                    ? _buildHomePageContent()
+                    : _buildSearchResultsList(),
               ),
-              const SizedBox(height: 16),
-              _buildPopularEvents(context),
-              const SizedBox(height: 24),
             ],
           ),
         ),
@@ -279,49 +306,60 @@ class _EcommerceHomePageState extends State<EcommerceHomePage> {
     );
   }
 
-  // GÜNCELLENDİ: Kategori ikonları artık tıklanabilir
-  Widget _buildEventCategories(BuildContext context) {
-    return SizedBox(
-      height: 100,
-      child: ListView.builder(
-        scrollDirection: Axis.horizontal,
-        padding: const EdgeInsets.symmetric(horizontal: 16),
-        itemCount: eventCategories.length,
-        itemBuilder: (context, index) {
-          final category = eventCategories[index];
-          return GestureDetector(
-            onTap: () => _navigateToCategoryPage(category['label']!),
-            child: Container(
-              width: 80,
-              margin: const EdgeInsets.only(right: 16),
-              child: Column(
-                children: [
-                  CircleAvatar(
-                    radius: 35,
-                    backgroundImage: NetworkImage(category['image']!),
-                  ),
-                  const SizedBox(height: 8),
-                  Text(
-                    category['label']!,
-                    style: Theme.of(context).textTheme.bodyMedium,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                ],
-              ),
-            ),
-          );
-        },
+  Widget _buildHomePageContent() {
+    return SingleChildScrollView(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const SizedBox(height: 24),
+          _buildSectionHeader(context, title: "Upcoming Events"),
+          _buildUpcomingEventsSlider(context),
+          const SizedBox(height: 24),
+          _buildSectionHeader(context, title: "Events", showArrow: true),
+          const SizedBox(height: 16),
+          _buildEventCategories(context),
+          const SizedBox(height: 24),
+          _buildSectionHeader(
+            context,
+            title: "Popular Events",
+            showArrow: true,
+          ),
+          const SizedBox(height: 16),
+          _buildPopularEvents(context),
+          const SizedBox(height: 24),
+        ],
       ),
     );
   }
 
-  // --- Diğer build metotları (_buildSearchBar, _buildSectionHeader, etc.) değişmeden kalır ---
+  Widget _buildSearchResultsList() {
+    if (_searchResults.isEmpty) {
+      return Center(
+        child: Text(
+          "No results found for '$_searchQuery'",
+          style: const TextStyle(fontSize: 16),
+        ),
+      );
+    }
+    return ListView.builder(
+      padding: const EdgeInsets.all(12.0),
+      itemCount: _searchResults.length,
+      itemBuilder: (context, index) {
+        final event = _searchResults[index];
+        return _buildEventPreviewCard(context, event);
+      },
+    );
+  }
+
   Widget _buildSearchBar(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+      padding: const EdgeInsets.fromLTRB(16.0, 8.0, 16.0, 0),
       child: TextField(
+        controller: _searchController,
+        onChanged: _updateSearchResults,
+        autofocus: false,
         decoration: InputDecoration(
-          hintText: 'Search',
+          hintText: 'Search for events, artists...',
           hintStyle: TextStyle(
             color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6),
           ),
@@ -329,12 +367,75 @@ class _EcommerceHomePageState extends State<EcommerceHomePage> {
             Icons.search,
             color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6),
           ),
+          suffixIcon: _searchQuery.isNotEmpty
+              ? IconButton(
+                  icon: const Icon(Icons.clear),
+                  onPressed: _clearSearch,
+                )
+              : null,
           filled: true,
           fillColor: Theme.of(context).colorScheme.surface,
           border: OutlineInputBorder(
             borderRadius: BorderRadius.circular(12),
             borderSide: BorderSide.none,
           ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildEventPreviewCard(
+    BuildContext context,
+    Map<String, dynamic> event,
+  ) {
+    return GestureDetector(
+      onTap: () => _navigateToDetail(event),
+      child: Card(
+        margin: const EdgeInsets.only(bottom: 16.0),
+        clipBehavior: Clip.antiAlias,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+        elevation: 3,
+        child: Row(
+          children: [
+            Image.network(
+              event['image'],
+              width: 120,
+              height: 120,
+              fit: BoxFit.cover,
+              errorBuilder: (context, error, stackTrace) => Container(
+                width: 120,
+                height: 120,
+                color: Colors.grey[300],
+                child: Icon(Icons.image_not_supported, color: Colors.grey[600]),
+              ),
+            ),
+            Expanded(
+              child: Padding(
+                padding: const EdgeInsets.all(12.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Text(
+                      event['title'],
+                      style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                        fontWeight: FontWeight.bold,
+                      ),
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                    const SizedBox(height: 8),
+                    Text(
+                      event['location'],
+                      style: Theme.of(context).textTheme.bodySmall,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ],
         ),
       ),
     );
@@ -415,6 +516,41 @@ class _EcommerceHomePageState extends State<EcommerceHomePage> {
           }),
         ),
       ],
+    );
+  }
+
+  Widget _buildEventCategories(BuildContext context) {
+    return SizedBox(
+      height: 100,
+      child: ListView.builder(
+        scrollDirection: Axis.horizontal,
+        padding: const EdgeInsets.symmetric(horizontal: 16),
+        itemCount: eventCategories.length,
+        itemBuilder: (context, index) {
+          final category = eventCategories[index];
+          return GestureDetector(
+            onTap: () => _navigateToCategoryPage(category['label']!),
+            child: Container(
+              width: 80,
+              margin: const EdgeInsets.only(right: 16),
+              child: Column(
+                children: [
+                  CircleAvatar(
+                    radius: 35,
+                    backgroundImage: NetworkImage(category['image']!),
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    category['label']!,
+                    style: Theme.of(context).textTheme.bodyMedium,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ],
+              ),
+            ),
+          );
+        },
+      ),
     );
   }
 
