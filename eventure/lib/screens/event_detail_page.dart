@@ -7,7 +7,7 @@ class EventDetailPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    const Color customBackgroundColor = Color(0xFFF3F0F4);
+    const Color customBackgroundColor = Color.fromARGB(255, 255, 255, 255);
 
     final theme = Theme.of(context);
     return Scaffold(
@@ -82,7 +82,7 @@ class EventDetailPage extends StatelessWidget {
                 context,
                 icon: Icons.info_outline,
                 text: event['organizer'] ?? 'Not specified',
-                color: theme.colorScheme.onBackground.withOpacity(0.8),
+                color: theme.colorScheme.background,
               ),
               const SizedBox(height: 16),
               // Title and Subtitle
@@ -110,7 +110,7 @@ class EventDetailPage extends StatelessWidget {
                   boxShadow: [
                     BoxShadow(
                       // Make the shadow more subtle
-                      color: Colors.grey.withOpacity(0.1),
+                      color: Colors.grey.withOpacity(0.3),
                       spreadRadius: 1,
                       blurRadius: 5,
                       offset: const Offset(0, 2),
@@ -142,7 +142,7 @@ class EventDetailPage extends StatelessWidget {
                   label: const Text("Apply"),
                   icon: const Icon(Icons.arrow_forward),
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFF6A4DBA),
+                    backgroundColor: theme.colorScheme.primary,
                     foregroundColor: Colors.white,
                     padding: const EdgeInsets.symmetric(vertical: 16),
                     shape: RoundedRectangleBorder(
