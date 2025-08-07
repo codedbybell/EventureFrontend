@@ -14,27 +14,50 @@ class AllCategoriesPage extends StatelessWidget {
 
     return Scaffold(
       appBar: AppBar(
-        // AppBar'ın sol tarafına bir widget eklemek için 'leading' kullanılır.
+        // 1. AppBar'ın arkaplanını şeffaf yapıyoruz ki alttaki gradyan görünsün.
+        backgroundColor: Colors.transparent,
+
+        // 2. AppBar'ın altındaki gölgeyi kaldırıyoruz.
+        elevation: 0,
+
+        // 3. 'flexibleSpace' ile arka plana istediğimiz gradyan rengini ekliyoruz.
+        flexibleSpace: Container(
+          decoration: const BoxDecoration(
+            gradient: LinearGradient(
+              colors: [
+                Color(0xFFFF6B9D), // Pembe tonu
+                Color(0xFF4ECDC4), // Turkuaz tonu
+              ],
+              begin: Alignment.centerLeft,
+              end: Alignment.centerRight,
+            ),
+          ),
+        ),
+
+        // --- Orijinal AppBar içeriğiniz gradyan stile uyarlandı ---
+
+        // 4. Geri butonunun rengini, gradyan üzerinde daha iyi görünmesi için beyaz yapıyoruz.
         leading: IconButton(
           onPressed: () {
             // Butona tıklandığında bir önceki sayfaya döner.
             Navigator.pop(context);
           },
-          // İstediğiniz ikon ve rengi burada tanımlıyoruz.
-          icon: Icon(
+          icon: const Icon(
             Icons.arrow_back_ios,
-            color: theme.colorScheme.onBackground, // Temanın rengini kullanır.
+            color: Colors.white, // Değişiklik: Renk beyaz yapıldı.
           ),
         ),
-        title: const Text('All Categories'),
-        elevation: 1,
-        // AppBar'ın başlığını ortalamak için (isteğe bağlı)
-        centerTitle: true,
-        // Flutter, 'leading' eklendiğinde otomatik olarak bir geri butonu alanı bırakır.
-        // Başlığın bu alanı hesaba katmasını istemiyorsak bunu false yapabiliriz.
-        // Ancak genellikle true kalması daha iyi bir görünüm sağlar.
-        primary: true,
+
+        // 5. Başlığın rengini de okunabilirlik için beyaz yapıyoruz.
+        title: const Text(
+          'All Categories',
+          style: TextStyle(
+            color: Colors.white, // Değişiklik: Renk beyaz yapıldı.
+          ),
+        ),
+        centerTitle: true, // Başlığı ortalar.
       ),
+
       body: GridView.builder(
         padding: const EdgeInsets.all(16.0),
         gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(

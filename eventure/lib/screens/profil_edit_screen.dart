@@ -3,6 +3,7 @@
 import 'package:eventure/main.dart'; // Global themeNotifier'a erişim için
 import 'package:eventure/screens/change_pass.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:image_picker/image_picker.dart';
 import 'dart:io';
 
@@ -219,26 +220,30 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
                 const Divider(),
                 // --- BİTİŞ ---
 
-                _buildChangePasswordTextButton(),
-                const SizedBox(height: 30),
-                _buildLogoutButton(),
-                const SizedBox(height: 20),
+                      _buildChangePasswordTextButton(),
+
+                      SizedBox(height: 30),
+                      _buildLogoutButton(),
+                      SizedBox(height: 20),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+          ),
+          Padding(
+            padding: EdgeInsets.all(20),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                _buildSaveButton(),
+                SizedBox(height: 10),
+                _buildCancelButton(),
+                SizedBox(height: 10),
               ],
             ),
           ),
-        ),
-      ),
-      bottomNavigationBar: Padding(
-        padding: const EdgeInsets.all(20),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            _buildSaveButton(),
-            const SizedBox(height: 10),
-            _buildCancelButton(),
-            const SizedBox(height: 10),
-          ],
-        ),
+        ],
       ),
     );
   }
