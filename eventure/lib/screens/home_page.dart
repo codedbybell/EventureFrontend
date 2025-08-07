@@ -1,12 +1,11 @@
-// lib/screens/home_page.dart (HATALARI DÜZELTİLMİŞ TAM KOD)
-
 import 'dart:async';
-import 'package:flutter/material.dart'; // <<--- EKSİK OLAN VE TÜM HATALARI DÜZELTEN SATIR
-
+import 'package:flutter/material.dart';
 import 'package:eventure/screens/category_events_page.dart';
 import 'package:eventure/screens/event_detail_page.dart';
+import 'package:eventure/screens/history_screen.dart'; // Keşfet yerine Geçmiş
+import 'package:eventure/screens/profil_edit_screen.dart'; // Profil sayfası
 
-// --- Bütün Etkinlikleri İçeren Ana Liste ---
+// --- Veri Modelleri ---
 final List<Map<String, dynamic>> allEvents = [
   // Upcoming Events
   {
@@ -162,6 +161,8 @@ final List<Map<String, String>> eventCategories = [
   },
 ];
 
+// --- Ana Sayfa Widget'ı ---
+
 class EcommerceHomePage extends StatefulWidget {
   const EcommerceHomePage({super.key});
 
@@ -170,18 +171,22 @@ class EcommerceHomePage extends StatefulWidget {
 }
 
 class _EcommerceHomePageState extends State<EcommerceHomePage> {
+  // --- State Değişkenleri ---
   int _currentBottomNavIndex = 0;
   final PageController _pageController = PageController();
   int _currentBannerPage = 0;
   Timer? _timer;
 
+  // Arama ile ilgili değişkenler
   final TextEditingController _searchController = TextEditingController();
   String _searchQuery = '';
   List<Map<String, dynamic>> _searchResults = [];
 
+  // --- Lifecycle Metotları ---
   @override
   void initState() {
     super.initState();
+    // Banner slider için zamanlayıcı
     _timer = Timer.periodic(const Duration(seconds: 5), (Timer timer) {
       if (!mounted) return;
       int newPage = (_currentBannerPage + 1) % upcomingEvents.length;
@@ -193,6 +198,8 @@ class _EcommerceHomePageState extends State<EcommerceHomePage> {
         );
       }
     });
+
+    // Arama çubuğu temizlendiğinde state'i güncellemek için listener
     _searchController.addListener(() {
       if (_searchController.text.isEmpty && _searchQuery.isNotEmpty) {
         _updateSearchResults('');
@@ -207,6 +214,8 @@ class _EcommerceHomePageState extends State<EcommerceHomePage> {
     _timer?.cancel();
     super.dispose();
   }
+
+  // --- Fonksiyonlar ve Metotlar ---
 
   void _updateSearchResults(String query) {
     setState(() {
@@ -230,7 +239,7 @@ class _EcommerceHomePageState extends State<EcommerceHomePage> {
   }
 
   void _clearSearch() {
-    FocusScope.of(context).unfocus();
+    FocusScope.of(context).unfocus(); // Klavyeyi kapat
     _searchController.clear();
   }
 
@@ -252,11 +261,19 @@ class _EcommerceHomePageState extends State<EcommerceHomePage> {
     );
   }
 
+  // --- Build Metotları ---
+
   @override
   Widget build(BuildContext context) {
+    final List<Widget> pages = [
+      _buildHomeTab(),
+      const HistoryScreen(),
+      ProfileEditScreen(),
+    ];
+
     return WillPopScope(
       onWillPop: () async {
-        if (_searchQuery.isNotEmpty) {
+        if (_currentBottomNavIndex == 0 && _searchQuery.isNotEmpty) {
           _clearSearch();
           return false;
         }
@@ -281,8 +298,8 @@ class _EcommerceHomePageState extends State<EcommerceHomePage> {
           items: const [
             BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Home'),
             BottomNavigationBarItem(
-              icon: Icon(Icons.explore_outlined),
-              label: 'Explore',
+              icon: Icon(Icons.history),
+              label: 'History',
             ),
             BottomNavigationBarItem(
               icon: Icon(Icons.person_outline),
@@ -291,18 +308,22 @@ class _EcommerceHomePageState extends State<EcommerceHomePage> {
           ],
         ),
         body: SafeArea(
-          child: Column(
-            children: [
-              _buildSearchBar(context),
-              Expanded(
-                child: _searchQuery.isEmpty
-                    ? _buildHomePageContent()
-                    : _buildSearchResultsList(),
-              ),
-            ],
-          ),
+          child: IndexedStack(index: _currentBottomNavIndex, children: pages),
         ),
       ),
+    );
+  }
+
+  Widget _buildHomeTab() {
+    return Column(
+      children: [
+        _buildSearchBar(context),
+        Expanded(
+          child: _searchQuery.isEmpty
+              ? _buildHomePageContent()
+              : _buildSearchResultsList(),
+        ),
+      ],
     );
   }
 
@@ -353,7 +374,7 @@ class _EcommerceHomePageState extends State<EcommerceHomePage> {
 
   Widget _buildSearchBar(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.fromLTRB(16.0, 8.0, 16.0, 0),
+      padding: const EdgeInsets.fromLTRB(16.0, 16.0, 16.0, 0),
       child: TextField(
         controller: _searchController,
         onChanged: _updateSearchResults,
