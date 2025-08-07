@@ -1,5 +1,6 @@
 import 'package:eventure/screens/change_pass.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:image_picker/image_picker.dart';
 import 'dart:io';
 import 'dart:math' as math;
@@ -170,57 +171,51 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
-      appBar: AppBar(
-        backgroundColor: Colors.transparent,
-        elevation: 0,
+      body: Column(
+        children: [
+          Expanded(
+            child: SingleChildScrollView(
+              child: Padding(
+                padding: EdgeInsets.all(20),
+                child: Form(
+                  key: _formKey,
+                  child: Column(
+                    children: [
+                      // Logo ve Başlık
+                      SizedBox(height: 40),
 
-        title: Text(
-          'Edit Profile',
-          style: TextStyle(color: Colors.black87, fontWeight: FontWeight.w600),
-        ),
-        centerTitle: true,
-      ),
-      body: SingleChildScrollView(
-        child: Padding(
-          padding: EdgeInsets.all(20),
-          child: Form(
-            key: _formKey,
+                      // Profil Fotoğrafı
+                      _buildProfilePhoto(),
+
+                      SizedBox(height: 40),
+
+                      // Form Alanları
+                      _buildFormFields(),
+
+                      _buildChangePasswordTextButton(),
+
+                      SizedBox(height: 30),
+                      _buildLogoutButton(),
+                      SizedBox(height: 20),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+          ),
+          Padding(
+            padding: EdgeInsets.all(20),
             child: Column(
+              mainAxisSize: MainAxisSize.min,
               children: [
-                // Logo ve Başlık
-                SizedBox(height: 40),
-
-                // Profil Fotoğrafı
-                _buildProfilePhoto(),
-
-                SizedBox(height: 40),
-
-                // Form Alanları
-                _buildFormFields(),
-
-                _buildChangePasswordTextButton(),
-
-                SizedBox(height: 30),
-                _buildLogoutButton(),
-                SizedBox(height: 20),
+                _buildSaveButton(),
+                SizedBox(height: 10),
+                _buildCancelButton(),
+                SizedBox(height: 10),
               ],
             ),
           ),
-        ),
-      ),
-
-      bottomNavigationBar: Padding(
-        padding: EdgeInsets.all(20),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            _buildSaveButton(),
-            SizedBox(height: 10),
-            _buildCancelButton(),
-            SizedBox(height: 10),
-          ],
-        ),
+        ],
       ),
     );
   }

@@ -14,21 +14,49 @@ class AllPopularEventsPage extends StatelessWidget {
 
     return Scaffold(
       appBar: AppBar(
-        // YENİ: Geri tuşu olarak özel bir IconButton ekliyoruz.
-        leading: IconButton(
-          onPressed: () {
-            // Bir önceki sayfaya dönmek için Navigator.pop kullanılır.
-            Navigator.of(context).pop();
-          },
-          icon: Icon(
-            Icons.arrow_back_ios, // İstediğiniz ikon
-            color: theme.colorScheme.onBackground, // İstediğiniz renk
+        // 1. Arka planı şeffaf yapıp gölgeyi kaldırıyoruz.
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+
+        // 2. 'flexibleSpace' ile gradyan arka planı ekliyoruz.
+        flexibleSpace: Container(
+          decoration: const BoxDecoration(
+            gradient: LinearGradient(
+              colors: [
+                Color(0xFFFF6B9D), // Pembe tonu
+                Color(0xFF4ECDC4), // Turkuaz tonu
+              ],
+              begin: Alignment.centerLeft,
+              end: Alignment.centerRight,
+            ),
           ),
         ),
-        title: const Text('Popular Events'),
-        elevation: 1,
-        // AppBar'ın başlıkla birlikte gelen otomatik geri tuşunu kaldırmak için.
-        // `leading` kullandığımız için bu genelde gereksizdir ama bazen gerekebilir.
+
+        // --- Orijinal AppBar içeriğiniz gradyan stile uyarlandı ---
+
+        // 3. Geri butonunun rengi gradyan üzerinde okunması için beyaz yapıldı.
+        leading: IconButton(
+          onPressed: () {
+            // Bir önceki sayfaya döner.
+            Navigator.of(context).pop();
+          },
+          icon: const Icon(
+            Icons.arrow_back_ios,
+            color: Colors.white, // Değişiklik: Renk beyaz yapıldı.
+          ),
+        ),
+
+        // 4. Başlığın rengi de beyaz yapıldı.
+        title: const Text(
+          'Popular Events',
+          style: TextStyle(
+            color: Colors.white, // Değişiklik: Renk beyaz yapıldı.
+          ),
+        ),
+
+        // Orijinal kodunuzdaki bu özellikler korunuyor.
+        centerTitle:
+            true, // Başlığı ortalamak estetik olarak daha iyi duracaktır.
         automaticallyImplyLeading: false,
       ),
       body: ListView.builder(

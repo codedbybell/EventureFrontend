@@ -18,9 +18,51 @@ class CategoryEventsPage extends StatelessWidget {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(categoryName),
-        backgroundColor: Theme.of(context).colorScheme.surface,
-        elevation: 1,
+        // 1. Arka planı şeffaf yapıp gölgeyi kaldırıyoruz.
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+
+        // 2. 'flexibleSpace' ile gradyan arka planı ekliyoruz.
+        flexibleSpace: Container(
+          decoration: const BoxDecoration(
+            gradient: LinearGradient(
+              colors: [
+                Color(0xFFFF6B9D), // Pembe tonu
+                Color(0xFF4ECDC4), // Turkuaz tonu
+              ],
+              begin: Alignment.centerLeft,
+              end: Alignment.centerRight,
+            ),
+          ),
+        ),
+
+        // --- Orijinal AppBar içeriğiniz gradyan stile uyarlandı ---
+
+        // 3. Geri butonunun rengi gradyan üzerinde okunması için beyaz yapıldı.
+        // Not: Orijinal kodunuzda açıkça bir geri butonu yoktu, ancak bu stil için
+        // eklenmesi yaygın bir uygulamadır. İstemiyorsanız bu 'leading' kısmını silebilirsiniz.
+        leading: IconButton(
+          onPressed: () {
+            // Bir önceki sayfaya döner.
+            Navigator.of(context).pop();
+          },
+          icon: const Icon(Icons.arrow_back_ios, color: Colors.white),
+        ),
+
+        // 4. Başlık olarak 'categoryName' değişkenini kullanıp rengini beyaz yapıyoruz.
+        title: Text(
+          categoryName, // Orijinal kodunuzdaki değişken burada kullanıldı.
+          style: const TextStyle(
+            color: Colors.white, // Stil uyarlaması: Renk beyaz yapıldı.
+          ),
+        ),
+
+        // Başlığı ortalamak estetik olarak daha iyi duracaktır.
+        centerTitle: true,
+
+        // Kendi 'leading' widget'ımızı eklediğimiz için Flutter'ın
+        // otomatik olarak bir tane eklemesini engelliyoruz.
+        automaticallyImplyLeading: false,
       ),
       body: filteredEvents.isEmpty
           ? const Center(
