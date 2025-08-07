@@ -1,9 +1,7 @@
 import 'dart:async';
-<<<<<<< HEAD
 import 'package:eventure/screens/history_screen.dart';
 import 'package:eventure/screens/login_screen.dart';
-=======
->>>>>>> origin/main
+
 import 'package:flutter/material.dart';
 // home_page.dart dosyasını doğru şekilde import ediyoruz.
 import 'package:eventure/screens/home_page.dart';
