@@ -1,46 +1,134 @@
-// lib/screens/profil_edit_screen.dart (SYNTAX HATALARI DÜZELTİLMİŞ HALİ)
+// lib/screens/profil_edit_screen.dart
 
 import 'package:eventure/main.dart';
 import 'package:eventure/screens/change_pass.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'dart:io';
+import '../models/auth_models.dart';
+import '../services/auth_service.dart';
+import 'login_screen.dart'; // Login ekranını import et
 
 class ProfileEditScreen extends StatefulWidget {
+  const ProfileEditScreen({
+    Key? key,
+  }) : super(key: key);
+
   @override
   _ProfileEditScreenState createState() => _ProfileEditScreenState();
 }
 
 class _ProfileEditScreenState extends State<ProfileEditScreen> {
-  // --- Değişkenleriniz ve metotlarınız aynı kalıyor ---
   final _formKey = GlobalKey<FormState>();
-  final _nameController = TextEditingController();
+  final _firstNameController = TextEditingController();
+  final _lastNameController = TextEditingController();
   final _emailController = TextEditingController();
-  final _phoneController = TextEditingController();
   final _bioController = TextEditingController();
+
+  final AuthService _authService = AuthService();
+  UserProfileModel? _currentUser;
+  bool _isLoading = true;
+
   File? _profileImage;
+  String? _networkImageUrl;
   final ImagePicker _picker = ImagePicker();
 
   @override
   void initState() {
     super.initState();
-    _loadUserData();
+    _fetchProfileData();
   }
 
   @override
   void dispose() {
-    _nameController.dispose();
+    _firstNameController.dispose();
+    _lastNameController.dispose();
     _emailController.dispose();
-    _phoneController.dispose();
     _bioController.dispose();
     super.dispose();
   }
 
-  void _loadUserData() {
-    _nameController.text = "Ahmet Yılmaz";
-    _emailController.text = "ahmet@example.com";
-    _phoneController.text = "+90 555 123 45 67";
-    _bioController.text = "Merhaba! Ben bir etkinlik tutkunuyum.";
+  Future<void> _fetchProfileData() async {
+    setState(() => _isLoading = true);
+    try {
+      // --- GERÇEK TOKEN KULLANILIYOR ---
+      final profile = await _authService.getProfile();
+
+      if (mounted) {
+        setState(() {
+          _currentUser = profile;
+          _firstNameController.text = profile.firstName;
+          _lastNameController.text = profile.lastName;
+          _emailController.text = profile.email;
+          _bioController.text = profile.bio ?? '';
+          _networkImageUrl = profile.profilePictureUrl;
+        });
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Profil yüklenemedi: ${e.toString()}')),
+        );
+      }
+    } finally {
+      if (mounted) setState(() => _isLoading = false);
+    }
+  }
+
+  Future<void> _saveProfile() async {
+    if (_formKey.currentState!.validate()) {
+      setState(() => _isLoading = true);
+      try {
+        // --- GERÇEK TOKEN KULLANILIYOR ---
+        bool success = await _authService.updateProfile(
+          firstName: _firstNameController.text.trim(),
+          lastName: _lastNameController.text.trim(),
+          email: _emailController.text.trim(),
+          bio: _bioController.text.trim(),
+          profileImage: _profileImage,
+        );
+
+        if (success && mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Profil başarıyla güncellendi!')),
+          );
+          // Profili güncelledikten sonra sayfayı yeniden yükle
+          _fetchProfileData();
+        }
+      } catch (e) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Profil güncellenemedi: ${e.toString()}')),
+          );
+        }
+      } finally {
+        if (mounted) setState(() => _isLoading = false);
+      }
+    }
+  }
+
+  Future<void> _logout() async {
+    setState(() => _isLoading = true);
+    try {
+      // --- GERÇEK TOKEN'LAR KULLANILIYOR ---
+      await _authService.logout();
+
+      if (mounted) {
+        // Tüm geçmişi temizle ve login ekranına git
+        Navigator.of(context).pushAndRemoveUntil(
+          MaterialPageRoute(builder: (context) => const LoginScreen()),
+          (Route<dynamic> route) => false,
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Çıkış yapılamadı: ${e.toString()}')),
+        );
+      }
+    } finally {
+      if (mounted) setState(() => _isLoading = false);
+    }
   }
 
   Future<void> _pickImage() async {
@@ -97,6 +185,93 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
     );
   }
 
+  Future<void> _getImage(ImageSource source) async {
+    try {
+      final XFile? image = await _picker.pickImage(
+        source: source,
+        maxWidth: 500,
+        maxHeight: 500,
+        imageQuality: 90,
+      );
+      if (image != null) {
+        setState(() {
+          _profileImage = File(image.path);
+          _networkImageUrl = null;
+        });
+      }
+    } catch (e) {
+      print('Resim seçme hatası: $e');
+    }
+  }
+
+  void _removeImage() {
+    setState(() {
+      _profileImage = null;
+      _networkImageUrl = null;
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+      appBar: AppBar(
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        iconTheme: IconThemeData(
+          color: Theme.of(context).colorScheme.onBackground,
+        ),
+        title: Text(
+          'Edit Profile',
+          style: TextStyle(
+            color: Theme.of(context).colorScheme.onBackground,
+            fontWeight: FontWeight.w600,
+          ),
+        ),
+        centerTitle: true,
+      ),
+      body: _isLoading
+          ? const Center(child: CircularProgressIndicator())
+          : SingleChildScrollView(
+              child: Padding(
+                padding: const EdgeInsets.all(20),
+                child: Form(
+                  key: _formKey,
+                  child: Column(
+                    children: [
+                      const SizedBox(height: 40),
+                      _buildProfilePhoto(),
+                      const SizedBox(height: 40),
+                      _buildFormFields(),
+                      const Divider(height: 40),
+                      _buildDarkModeSwitch(),
+                      const Divider(),
+                      _buildChangePasswordTextButton(),
+                      const SizedBox(height: 30),
+                      _buildLogoutButton(),
+                      const SizedBox(height: 20),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+      bottomNavigationBar: _isLoading
+          ? null
+          : Padding(
+              padding: const EdgeInsets.all(20),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  _buildSaveButton(),
+                  const SizedBox(height: 10),
+                  _buildCancelButton(),
+                  const SizedBox(height: 10),
+                ],
+              ),
+            ),
+    );
+  }
+
   Widget _buildImageOption({
     required IconData icon,
     required String label,
@@ -128,173 +303,56 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
     );
   }
 
-  Future<void> _getImage(ImageSource source) async {
-    try {
-      final XFile? image = await _picker.pickImage(
-        source: source,
-        maxWidth: 300,
-        maxHeight: 300,
-        imageQuality: 85,
-      );
-      if (image != null) {
-        setState(() {
-          _profileImage = File(image.path);
-        });
-      }
-    } catch (e) {
-      print('Resim seçme hatası: $e');
-    }
-  }
-
-  void _removeImage() {
-    setState(() {
-      _profileImage = null;
-    });
-  }
-
-  void _saveProfile() {
-    if (_formKey.currentState!.validate()) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: const Text('Profile updated successfully!'),
-          backgroundColor: const Color(0xFF4ECDC4),
-          behavior: SnackBarBehavior.floating,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(10),
-          ),
-        ),
-      );
-      Navigator.pop(context);
-    }
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    // Scaffold widget'ı burada return ediliyor.
-    return Scaffold(
-      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
-      appBar: AppBar(
-        backgroundColor: Colors.transparent,
-        elevation: 0,
-        iconTheme: IconThemeData(
-          color: Theme.of(context).colorScheme.onBackground,
-        ),
-        title: Text(
-          'Edit Profile',
-          style: TextStyle(
-            color: Theme.of(context).colorScheme.onBackground,
-            fontWeight: FontWeight.w600,
-          ),
-        ),
-        centerTitle: true,
-      ),
-      // body ve bottomNavigationBar DÜZELTİLDİ.
-      body: SingleChildScrollView(
-        child: Padding(
-          padding: const EdgeInsets.all(20),
-          child: Form(
-            key: _formKey,
-            child: Column(
-              children: [
-                const SizedBox(height: 40),
-                _buildProfilePhoto(),
-                const SizedBox(height: 40),
-                _buildFormFields(),
-                const Divider(height: 40),
-                SwitchListTile(
-                  title: const Text('Dark Mode'),
-                  secondary: const Icon(Icons.brightness_6_outlined),
-                  value: themeNotifier.themeMode.value == ThemeMode.dark,
-                  onChanged: (isDarkMode) {
-                    if (isDarkMode) {
-                      themeNotifier.setDarkMode();
-                    } else {
-                      themeNotifier.setLightMode();
-                    }
-                  },
-                ),
-                const Divider(),
-                _buildChangePasswordTextButton(),
-                const SizedBox(height: 30),
-                _buildLogoutButton(),
-                const SizedBox(height: 20),
-              ],
-            ),
-          ),
-        ),
-      ),
-      bottomNavigationBar: Padding(
-        padding: const EdgeInsets.all(20),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            _buildSaveButton(),
-            const SizedBox(height: 10),
-            _buildCancelButton(),
-            const SizedBox(height: 10),
-          ],
-        ),
-      ),
-    );
-  }
-
   Widget _buildProfilePhoto() {
+    ImageProvider? backgroundImage;
+    if (_profileImage != null) {
+      backgroundImage = FileImage(_profileImage!);
+    } else if (_networkImageUrl != null && _networkImageUrl!.isNotEmpty) {
+      backgroundImage = NetworkImage(_networkImageUrl!.startsWith('http')
+          ? _networkImageUrl!
+          : 'http://192.168.1.80:8000$_networkImageUrl'); // Kendi IP adresini yaz
+    }
+
     return Column(
       children: [
         GestureDetector(
           onTap: _pickImage,
-          child: Container(
-            width: 120,
-            height: 120,
-            decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              gradient: _profileImage == null
-                  ? const LinearGradient(
-                      colors: [Color(0xFF667EEA), Color(0xFF764BA2)],
-                      begin: Alignment.topLeft,
-                      end: Alignment.bottomRight,
-                    )
-                  : null,
-              image: _profileImage != null
-                  ? DecorationImage(
-                      image: FileImage(_profileImage!),
-                      fit: BoxFit.cover,
-                    )
-                  : null,
-            ),
-            child: Stack(
-              children: [
-                if (_profileImage == null)
-                  const Center(
-                    child: Text(
-                      'AY',
-                      style: TextStyle(
-                        fontSize: 36,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.white,
-                      ),
-                    ),
-                  ),
-                Positioned(
-                  bottom: 0,
-                  right: 5,
-                  child: Container(
-                    width: 30,
-                    height: 30,
-                    decoration: BoxDecoration(
-                      color: const Color(0xFFFF6B9D),
-                      shape: BoxShape.circle,
-                      border: Border.all(color: Colors.white, width: 2),
-                    ),
-                    child: const Icon(
-                      Icons.camera_alt,
+          child: CircleAvatar(
+            radius: 60,
+            backgroundImage: backgroundImage,
+            backgroundColor: const Color(0xFF764BA2),
+            child: (backgroundImage == null)
+                ? Text(
+                    "${_firstNameController.text.isNotEmpty ? _firstNameController.text[0] : ''}${_lastNameController.text.isNotEmpty ? _lastNameController.text[0] : ''}"
+                        .toUpperCase(),
+                    style: const TextStyle(
+                      fontSize: 36,
+                      fontWeight: FontWeight.bold,
                       color: Colors.white,
-                      size: 16,
                     ),
+                  )
+                : Stack(
+                    children: [
+                      Positioned(
+                        bottom: 0,
+                        right: 0,
+                        child: Container(
+                          width: 35,
+                          height: 35,
+                          decoration: BoxDecoration(
+                            color: const Color(0xFFFF6B9D),
+                            shape: BoxShape.circle,
+                            border: Border.all(color: Colors.white, width: 2),
+                          ),
+                          child: const Icon(
+                            Icons.camera_alt,
+                            color: Colors.white,
+                            size: 18,
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
-                ),
-              ],
-            ),
           ),
         ),
         const SizedBox(height: 10),
@@ -317,15 +375,18 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
     return Column(
       children: [
         _buildInputField(
-          controller: _nameController,
-          label: 'Name Surname',
+          controller: _firstNameController,
+          label: 'First Name',
           icon: Icons.person_outline,
-          validator: (value) {
-            if (value == null || value.isEmpty) {
-              return 'Ad soyad gerekli';
-            }
-            return null;
-          },
+          validator: (value) =>
+              value == null || value.isEmpty ? 'First name is required' : null,
+        ),
+        _buildInputField(
+          controller: _lastNameController,
+          label: 'Last Name',
+          icon: Icons.person_outline,
+          validator: (value) =>
+              value == null || value.isEmpty ? 'Last name is required' : null,
         ),
         _buildInputField(
           controller: _emailController,
@@ -333,12 +394,9 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
           icon: Icons.email_outlined,
           keyboardType: TextInputType.emailAddress,
           validator: (value) {
-            if (value == null || value.isEmpty) {
-              return 'E-posta gerekli';
-            }
-            if (!value.contains('@')) {
-              return 'Geçerli bir e-posta girin';
-            }
+            if (value == null || value.isEmpty) return 'E-mail is required';
+            if (!RegExp(r'\S+@\S+\.\S+').hasMatch(value))
+              return 'Please enter a valid email';
             return null;
           },
         ),
@@ -457,19 +515,26 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
     );
   }
 
+  Widget _buildDarkModeSwitch() {
+    return SwitchListTile(
+      title: const Text('Dark Mode'),
+      secondary: const Icon(Icons.brightness_6_outlined),
+      value: themeNotifier.themeMode.value == ThemeMode.dark,
+      onChanged: (isDarkMode) {
+        if (isDarkMode) {
+          themeNotifier.setDarkMode();
+        } else {
+          themeNotifier.setLightMode();
+        }
+      },
+    );
+  }
+
   Widget _buildLogoutButton() {
     return TextButton(
-      onPressed: () {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: const Text('Çıkış yapıldı!'),
-            backgroundColor: Colors.red,
-          ),
-        );
-        Navigator.pop(context);
-      },
+      onPressed: _logout,
       style: TextButton.styleFrom(
-        foregroundColor: Theme.of(context).colorScheme.secondary,
+        foregroundColor: Theme.of(context).colorScheme.error,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8.0)),
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
       ),
