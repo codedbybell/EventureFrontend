@@ -1,9 +1,8 @@
-// lib/screens/profil_edit_screen.dart (TEMA ANAHTARI EKLENMİŞ HALİ)
+// lib/screens/profil_edit_screen.dart (SYNTAX HATALARI DÜZELTİLMİŞ HALİ)
 
-import 'package:eventure/main.dart'; // Global themeNotifier'a erişim için
+import 'package:eventure/main.dart';
 import 'package:eventure/screens/change_pass.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:image_picker/image_picker.dart';
 import 'dart:io';
 
@@ -44,7 +43,6 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
     _bioController.text = "Merhaba! Ben bir etkinlik tutkunuyum.";
   }
 
-  // ... (Diğer tüm metotlarınız _pickImage, _saveProfile vb. aynı kalıyor)
   Future<void> _pickImage() async {
     showModalBottomSheet(
       context: context,
@@ -61,7 +59,7 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
                 width: 40,
                 height: 4,
                 decoration: BoxDecoration(
-                  color: Colors.grey,
+                  color: Colors.grey[300],
                   borderRadius: BorderRadius.circular(2),
                 ),
               ),
@@ -172,6 +170,7 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
 
   @override
   Widget build(BuildContext context) {
+    // Scaffold widget'ı burada return ediliyor.
     return Scaffold(
       backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       appBar: AppBar(
@@ -189,6 +188,7 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
         ),
         centerTitle: true,
       ),
+      // body ve bottomNavigationBar DÜZELTİLDİ.
       body: SingleChildScrollView(
         child: Padding(
           padding: const EdgeInsets.all(20),
@@ -200,16 +200,12 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
                 _buildProfilePhoto(),
                 const SizedBox(height: 40),
                 _buildFormFields(),
-
-                // --- TEMA DEĞİŞTİRME ANAHTARI BURAYA EKLENDİ ---
                 const Divider(height: 40),
                 SwitchListTile(
                   title: const Text('Dark Mode'),
                   secondary: const Icon(Icons.brightness_6_outlined),
-                  // Değeri, global notifier'dan okuyoruz.
                   value: themeNotifier.themeMode.value == ThemeMode.dark,
                   onChanged: (isDarkMode) {
-                    // Değişiklik olduğunda notifier'daki metotları çağırıyoruz.
                     if (isDarkMode) {
                       themeNotifier.setDarkMode();
                     } else {
@@ -218,37 +214,30 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
                   },
                 ),
                 const Divider(),
-                // --- BİTİŞ ---
-
-                      _buildChangePasswordTextButton(),
-
-                      SizedBox(height: 30),
-                      _buildLogoutButton(),
-                      SizedBox(height: 20),
-                    ],
-                  ),
-                ),
-              ),
-            ),
-          ),
-          Padding(
-            padding: EdgeInsets.all(20),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                _buildSaveButton(),
-                SizedBox(height: 10),
-                _buildCancelButton(),
-                SizedBox(height: 10),
+                _buildChangePasswordTextButton(),
+                const SizedBox(height: 30),
+                _buildLogoutButton(),
+                const SizedBox(height: 20),
               ],
             ),
           ),
-        ],
+        ),
+      ),
+      bottomNavigationBar: Padding(
+        padding: const EdgeInsets.all(20),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            _buildSaveButton(),
+            const SizedBox(height: 10),
+            _buildCancelButton(),
+            const SizedBox(height: 10),
+          ],
+        ),
       ),
     );
   }
 
-  // ... (Diğer tüm _build... metotlarınız olduğu gibi kalıyor)
   Widget _buildProfilePhoto() {
     return Column(
       children: [
@@ -381,7 +370,7 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
           Text(
             label,
             style: TextStyle(
-              color: Colors.grey,
+              color: Colors.grey[600],
               fontSize: 16,
               fontWeight: FontWeight.w500,
             ),
@@ -394,15 +383,15 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
             maxLength: maxLength,
             validator: validator,
             decoration: InputDecoration(
-              prefixIcon: Icon(icon, color: Colors.grey, size: 20),
+              prefixIcon: Icon(icon, color: Colors.grey[400], size: 20),
               border: UnderlineInputBorder(
-                borderSide: BorderSide(color: Colors.grey!),
+                borderSide: BorderSide(color: Colors.grey[300]!),
               ),
               focusedBorder: const UnderlineInputBorder(
                 borderSide: BorderSide(color: Color(0xFF4ECDC4), width: 2),
               ),
               enabledBorder: UnderlineInputBorder(
-                borderSide: BorderSide(color: Colors.grey!),
+                borderSide: BorderSide(color: Colors.grey[300]!),
               ),
               counterText: '',
             ),
@@ -460,7 +449,7 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
       child: Text(
         'Cancel',
         style: TextStyle(
-          color: Colors.grey,
+          color: Colors.grey[600],
           fontSize: 16,
           fontWeight: FontWeight.w500,
         ),
