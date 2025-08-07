@@ -1,5 +1,3 @@
-// lib/screens/event_detail_page.dart (DOĞRU VE TAM HALİ)
-
 import 'package:flutter/material.dart';
 import 'package:eventure/theme/theme.dart' as AppTheme;
 
@@ -36,6 +34,8 @@ class EventDetailPage extends StatelessWidget {
                   fit: BoxFit.cover,
                   errorBuilder: (context, error, stackTrace) {
                     return Container(
+                      height: 200,
+                      width: double.infinity,
                       color: Colors.grey[300],
                       child: Icon(
                         Icons.image_not_supported,
