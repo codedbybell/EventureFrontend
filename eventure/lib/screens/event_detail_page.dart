@@ -1,6 +1,7 @@
-// lib/screens/event_detail_page.dart (UPDATED IN ENGLISH)
+// lib/screens/event_detail_page.dart (DOĞRU VE TAM HALİ)
 
 import 'package:flutter/material.dart';
+import 'package:eventure/theme/theme.dart' as AppTheme;
 
 class EventDetailPage extends StatelessWidget {
   final Map<String, dynamic> event;
@@ -20,10 +21,8 @@ class EventDetailPage extends StatelessWidget {
             elevation: 0,
             pinned: true,
             leading: IconButton(
-              icon: Icon(
-                Icons.arrow_back_ios,
-                color: theme.colorScheme.onBackground,
-              ),
+              icon: const Icon(Icons.arrow_back_ios),
+              color: AppTheme.neutralGray, // Rengi tema dosyasından al
               onPressed: () => Navigator.of(context).pop(),
             ),
             flexibleSpace: FlexibleSpaceBar(
@@ -54,7 +53,6 @@ class EventDetailPage extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // Tags
                   if (event['tags'] != null)
                     Wrap(
                       spacing: 8.0,
@@ -74,8 +72,6 @@ class EventDetailPage extends StatelessWidget {
                           .toList(),
                     ),
                   const SizedBox(height: 16),
-
-                  // Organizer Info
                   _buildInfoRow(
                     context,
                     icon: Icons.info_outline,
@@ -83,8 +79,6 @@ class EventDetailPage extends StatelessWidget {
                     color: theme.colorScheme.onBackground.withOpacity(0.8),
                   ),
                   const SizedBox(height: 16),
-
-                  // Title and Subtitle
                   Text(
                     event['title'],
                     style: theme.textTheme.headlineSmall?.copyWith(
@@ -99,8 +93,6 @@ class EventDetailPage extends StatelessWidget {
                     ),
                   ),
                   const SizedBox(height: 24),
-
-                  // Details Box
                   Container(
                     padding: const EdgeInsets.all(16.0),
                     decoration: BoxDecoration(
@@ -125,19 +117,14 @@ class EventDetailPage extends StatelessWidget {
                     ),
                   ),
                   const SizedBox(height: 32),
-
-                  // UPDATED BUTTON
                   SizedBox(
                     width: double.infinity,
                     child: ElevatedButton.icon(
                       onPressed: () {},
-                      // The 'label' is the main text, 'icon' is the icon.
                       label: const Text("Apply"),
                       icon: const Icon(Icons.arrow_forward),
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: const Color(
-                          0xFF6A4DBA,
-                        ), // Purple color
+                        backgroundColor: const Color(0xFF6A4DBA),
                         foregroundColor: Colors.white,
                         padding: const EdgeInsets.symmetric(vertical: 16),
                         shape: RoundedRectangleBorder(

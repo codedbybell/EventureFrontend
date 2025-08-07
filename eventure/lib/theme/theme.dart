@@ -1,3 +1,5 @@
+// lib/theme/theme.dart (TEK VE DOĞRU TEMA DOSYASI)
+
 import 'package:flutter/material.dart';
 
 // 🎨 Color Palette Definitions
@@ -6,6 +8,8 @@ const Color tealPalette = Color(0xFF56C1C2);
 const Color salmonPalette = Color(0xFFF67280);
 const Color darkCoralPalette = Color(0xFFEB5E55);
 const Color lightYellowPalette = Color(0xFFFFE66D);
+// *** İHTİYACIMIZ OLAN RENK BURAYA EKLENDİ ***
+const Color neutralGray = Color(0xFF9E9E9E);
 
 // 🖤 Alternatives for Black
 const Color darkTextColor = Color(0xFF4E342E);
@@ -60,7 +64,7 @@ final ThemeData lightTheme = ThemeData(
     displaySmall: TextStyle(color: darkTextColor),
     headlineMedium: TextStyle(color: darkTextColor),
     headlineSmall: TextStyle(color: darkTextColor),
-    titleLarge: TextStyle(color: darkTextColor),
+    titleLarge: TextStyle(color: darkTextColor, fontWeight: FontWeight.bold),
     bodyLarge: TextStyle(color: darkTextColor),
     bodyMedium: TextStyle(color: darkTextColor),
     labelLarge: TextStyle(color: Colors.white),
@@ -114,7 +118,7 @@ final ThemeData darkTheme = ThemeData(
     displaySmall: TextStyle(color: lightBackground),
     headlineMedium: TextStyle(color: lightBackground),
     headlineSmall: TextStyle(color: lightBackground),
-    titleLarge: TextStyle(color: lightBackground),
+    titleLarge: TextStyle(color: lightBackground, fontWeight: FontWeight.bold),
     bodyLarge: TextStyle(color: lightBackground),
     bodyMedium: TextStyle(color: lightBackground),
     labelLarge: TextStyle(color: darkTextColor),
