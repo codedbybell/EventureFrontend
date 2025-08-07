@@ -9,8 +9,28 @@ class AllPopularEventsPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // YENİ: Renk kodunu kullanabilmek için mevcut temayı alıyoruz.
+    final theme = Theme.of(context);
+
     return Scaffold(
-      appBar: AppBar(title: const Text('Popular Events'), elevation: 1),
+      appBar: AppBar(
+        // YENİ: Geri tuşu olarak özel bir IconButton ekliyoruz.
+        leading: IconButton(
+          onPressed: () {
+            // Bir önceki sayfaya dönmek için Navigator.pop kullanılır.
+            Navigator.of(context).pop();
+          },
+          icon: Icon(
+            Icons.arrow_back_ios, // İstediğiniz ikon
+            color: theme.colorScheme.onBackground, // İstediğiniz renk
+          ),
+        ),
+        title: const Text('Popular Events'),
+        elevation: 1,
+        // AppBar'ın başlıkla birlikte gelen otomatik geri tuşunu kaldırmak için.
+        // `leading` kullandığımız için bu genelde gereksizdir ama bazen gerekebilir.
+        automaticallyImplyLeading: false,
+      ),
       body: ListView.builder(
         padding: const EdgeInsets.all(12.0),
         itemCount: popularEvents.length,

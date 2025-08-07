@@ -9,8 +9,32 @@ class AllCategoriesPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // Tema verilerine erişmek için bir değişken tanımlıyoruz.
+    final theme = Theme.of(context);
+
     return Scaffold(
-      appBar: AppBar(title: const Text('All Categories'), elevation: 1),
+      appBar: AppBar(
+        // AppBar'ın sol tarafına bir widget eklemek için 'leading' kullanılır.
+        leading: IconButton(
+          onPressed: () {
+            // Butona tıklandığında bir önceki sayfaya döner.
+            Navigator.pop(context);
+          },
+          // İstediğiniz ikon ve rengi burada tanımlıyoruz.
+          icon: Icon(
+            Icons.arrow_back_ios,
+            color: theme.colorScheme.onBackground, // Temanın rengini kullanır.
+          ),
+        ),
+        title: const Text('All Categories'),
+        elevation: 1,
+        // AppBar'ın başlığını ortalamak için (isteğe bağlı)
+        centerTitle: true,
+        // Flutter, 'leading' eklendiğinde otomatik olarak bir geri butonu alanı bırakır.
+        // Başlığın bu alanı hesaba katmasını istemiyorsak bunu false yapabiliriz.
+        // Ancak genellikle true kalması daha iyi bir görünüm sağlar.
+        primary: true,
+      ),
       body: GridView.builder(
         padding: const EdgeInsets.all(16.0),
         gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
