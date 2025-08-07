@@ -24,7 +24,7 @@ class MyApp extends StatelessWidget {
       themeMode: ThemeMode.system,
       title: 'Eventure',
       debugShowCheckedModeBanner: false,
-      initialRoute: '/home',
+      initialRoute: '/',
       routes: {
         '/': (context) => const SplashScreen(),
         '/login': (context) => const LoginScreen(),

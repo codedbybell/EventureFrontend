@@ -1,14 +1,20 @@
-// lib/screens/home_page.dart (HATALARI DÜZELTİLMİŞ TAM KOD)
+// lib/screens/home_page.dart (İSTEKLERİNİZ EKLENMİŞ GÜNCEL HALİ)
 
 import 'dart:async';
-import 'package:flutter/material.dart'; // <<--- EKSİK OLAN VE TÜM HATALARI DÜZELTEN SATIR
+import 'package:flutter/material.dart';
+
+// İSTEDİĞİNİZ YENİ SAYFALAR İÇİN IMPORT'LAR EKLENDİ
+import 'package:eventure/screens/all_categories_page.dart';
+import 'package:eventure/screens/all_popular_events_page.dart';
 
 import 'package:eventure/screens/category_events_page.dart';
 import 'package:eventure/screens/event_detail_page.dart';
+import 'package:eventure/screens/history_screen.dart';
+import 'package:eventure/screens/profil_edit_screen.dart';
 
-// --- Bütün Etkinlikleri İçeren Ana Liste ---
+// --- Veri Modelleri (Değişiklik yok) ---
 final List<Map<String, dynamic>> allEvents = [
-  // Upcoming Events
+  // ... (Veri listesi olduğu gibi kalacak)
   {
     'image':
         'https://upload.wikimedia.org/wikipedia/en/7/79/Music_of_the_Spheres_World_Tour_Poster.png',
@@ -57,7 +63,6 @@ final List<Map<String, dynamic>> allEvents = [
     'organizer': 'PSM Music',
     'category': 'Concerts',
   },
-  // Popular Events
   {
     'image': 'https://istanbulfestivali.com/home_concerts_2025.jpg',
     'title': 'Istanbul Festival',
@@ -117,7 +122,6 @@ final List<Map<String, dynamic>> allEvents = [
     'category': 'Nature',
   },
 ];
-
 final List<Map<String, dynamic>> upcomingEvents = allEvents
     .where(
       (e) => [
@@ -138,7 +142,6 @@ final List<Map<String, dynamic>> popularEvents = allEvents
       ].contains(e['title']),
     )
     .toList();
-
 final List<Map<String, String>> eventCategories = [
   {
     'image':
@@ -162,23 +165,24 @@ final List<Map<String, String>> eventCategories = [
   },
 ];
 
+// --- Ana Sayfa Widget'ı ---
 class EcommerceHomePage extends StatefulWidget {
   const EcommerceHomePage({super.key});
-
   @override
   State<EcommerceHomePage> createState() => _EcommerceHomePageState();
 }
 
 class _EcommerceHomePageState extends State<EcommerceHomePage> {
+  // --- State Değişkenleri (Değişiklik yok) ---
   int _currentBottomNavIndex = 0;
   final PageController _pageController = PageController();
   int _currentBannerPage = 0;
   Timer? _timer;
-
   final TextEditingController _searchController = TextEditingController();
   String _searchQuery = '';
   List<Map<String, dynamic>> _searchResults = [];
 
+  // --- Lifecycle Metotları (Değişiklik yok) ---
   @override
   void initState() {
     super.initState();
@@ -208,6 +212,7 @@ class _EcommerceHomePageState extends State<EcommerceHomePage> {
     super.dispose();
   }
 
+  // --- Fonksiyonlar ve Metotlar (YENİ METOTLAR EKLENDİ) ---
   void _updateSearchResults(String query) {
     setState(() {
       _searchQuery = query;
@@ -252,11 +257,33 @@ class _EcommerceHomePageState extends State<EcommerceHomePage> {
     );
   }
 
+  // YENİ EKLENDİ: "TÜMÜNÜ GÖR" İÇİN NAVİGASYON FONKSİYONLARI
+  void _navigateToAllCategories() {
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => const AllCategoriesPage()),
+    );
+  }
+
+  void _navigateToAllPopularEvents() {
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => const AllPopularEventsPage()),
+    );
+  }
+
+  // --- Build Metotları (Değişiklik yok) ---
   @override
   Widget build(BuildContext context) {
+    final List<Widget> pages = [
+      _buildHomeTab(),
+      const HistoryScreen(),
+      ProfileEditScreen(),
+    ];
+
     return WillPopScope(
       onWillPop: () async {
-        if (_searchQuery.isNotEmpty) {
+        if (_currentBottomNavIndex == 0 && _searchQuery.isNotEmpty) {
           _clearSearch();
           return false;
         }
@@ -281,8 +308,8 @@ class _EcommerceHomePageState extends State<EcommerceHomePage> {
           items: const [
             BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Home'),
             BottomNavigationBarItem(
-              icon: Icon(Icons.explore_outlined),
-              label: 'Explore',
+              icon: Icon(Icons.history),
+              label: 'History',
             ),
             BottomNavigationBarItem(
               icon: Icon(Icons.person_outline),
@@ -291,21 +318,26 @@ class _EcommerceHomePageState extends State<EcommerceHomePage> {
           ],
         ),
         body: SafeArea(
-          child: Column(
-            children: [
-              _buildSearchBar(context),
-              Expanded(
-                child: _searchQuery.isEmpty
-                    ? _buildHomePageContent()
-                    : _buildSearchResultsList(),
-              ),
-            ],
-          ),
+          child: IndexedStack(index: _currentBottomNavIndex, children: pages),
         ),
       ),
     );
   }
 
+  Widget _buildHomeTab() {
+    return Column(
+      children: [
+        _buildSearchBar(context),
+        Expanded(
+          child: _searchQuery.isEmpty
+              ? _buildHomePageContent()
+              : _buildSearchResultsList(),
+        ),
+      ],
+    );
+  }
+
+  // _buildHomePageContent GÜNCELLENDİ
   Widget _buildHomePageContent() {
     return SingleChildScrollView(
       child: Column(
@@ -315,14 +347,22 @@ class _EcommerceHomePageState extends State<EcommerceHomePage> {
           _buildSectionHeader(context, title: "Upcoming Events"),
           _buildUpcomingEventsSlider(context),
           const SizedBox(height: 24),
-          _buildSectionHeader(context, title: "Events", showArrow: true),
+          // "onSeeAllTapped" fonksiyonu eklendi
+          _buildSectionHeader(
+            context,
+            title: "Events",
+            showArrow: true,
+            onSeeAllTapped: _navigateToAllCategories,
+          ),
           const SizedBox(height: 16),
           _buildEventCategories(context),
           const SizedBox(height: 24),
+          // "onSeeAllTapped" fonksiyonu eklendi
           _buildSectionHeader(
             context,
             title: "Popular Events",
             showArrow: true,
+            onSeeAllTapped: _navigateToAllPopularEvents,
           ),
           const SizedBox(height: 16),
           _buildPopularEvents(context),
@@ -334,12 +374,7 @@ class _EcommerceHomePageState extends State<EcommerceHomePage> {
 
   Widget _buildSearchResultsList() {
     if (_searchResults.isEmpty) {
-      return Center(
-        child: Text(
-          "No results found for '$_searchQuery'",
-          style: const TextStyle(fontSize: 16),
-        ),
-      );
+      return Center(child: Text("No results found for '$_searchQuery'"));
     }
     return ListView.builder(
       padding: const EdgeInsets.all(12.0),
@@ -353,20 +388,13 @@ class _EcommerceHomePageState extends State<EcommerceHomePage> {
 
   Widget _buildSearchBar(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.fromLTRB(16.0, 8.0, 16.0, 0),
+      padding: const EdgeInsets.fromLTRB(16.0, 16.0, 16.0, 0),
       child: TextField(
         controller: _searchController,
         onChanged: _updateSearchResults,
-        autofocus: false,
         decoration: InputDecoration(
           hintText: 'Search for events, artists...',
-          hintStyle: TextStyle(
-            color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6),
-          ),
-          prefixIcon: Icon(
-            Icons.search,
-            color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6),
-          ),
+          prefixIcon: const Icon(Icons.search),
           suffixIcon: _searchQuery.isNotEmpty
               ? IconButton(
                   icon: const Icon(Icons.clear),
@@ -374,7 +402,6 @@ class _EcommerceHomePageState extends State<EcommerceHomePage> {
                 )
               : null,
           filled: true,
-          fillColor: Theme.of(context).colorScheme.surface,
           border: OutlineInputBorder(
             borderRadius: BorderRadius.circular(12),
             borderSide: BorderSide.none,
@@ -441,10 +468,12 @@ class _EcommerceHomePageState extends State<EcommerceHomePage> {
     );
   }
 
+  // _buildSectionHeader GÜNCELLENDİ
   Widget _buildSectionHeader(
     BuildContext context, {
     required String title,
     bool showArrow = false,
+    VoidCallback? onSeeAllTapped,
   }) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16.0),
@@ -452,11 +481,20 @@ class _EcommerceHomePageState extends State<EcommerceHomePage> {
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           Text(title, style: Theme.of(context).textTheme.titleLarge),
-          if (showArrow)
-            Icon(
-              Icons.arrow_forward_ios,
-              size: 16,
-              color: Theme.of(context).colorScheme.onBackground,
+          if (showArrow && onSeeAllTapped != null)
+            InkWell(
+              onTap: onSeeAllTapped,
+              borderRadius: BorderRadius.circular(20),
+              child: const Padding(
+                padding: EdgeInsets.all(8.0),
+                child: Icon(Icons.arrow_forward_ios, size: 16),
+              ),
+            ),
+          // Sadece ok gösterilmesi isteniyorsa (tıklama fonksiyonu yoksa)
+          if (showArrow && onSeeAllTapped == null)
+            const Padding(
+              padding: EdgeInsets.all(8.0),
+              child: Icon(Icons.arrow_forward_ios, size: 16),
             ),
         ],
       ),
@@ -508,8 +546,8 @@ class _EcommerceHomePageState extends State<EcommerceHomePage> {
               width: _currentBannerPage == index ? 24 : 8,
               decoration: BoxDecoration(
                 color: _currentBannerPage == index
-                    ? Theme.of(context).colorScheme.onBackground
-                    : Theme.of(context).colorScheme.surface,
+                    ? Theme.of(context).colorScheme.primary
+                    : Colors.grey.withOpacity(0.5),
                 borderRadius: BorderRadius.circular(4),
               ),
             );
