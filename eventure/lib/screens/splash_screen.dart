@@ -1,9 +1,15 @@
 import 'dart:async';
+<<<<<<< HEAD
 import 'package:eventure/screens/history_screen.dart';
 import 'package:eventure/screens/login_screen.dart';
+=======
+>>>>>>> origin/main
 import 'package:flutter/material.dart';
-import 'package:eventure/screens/home_page.dart'; // doğru yolu kullan!
+// home_page.dart dosyasını doğru şekilde import ediyoruz.
+import 'package:eventure/screens/home_page.dart';
 import 'package:eventure/theme/theme.dart' as AppTheme;
+// login_screen.dart'a artık ihtiyacımız olmadığı için bu satırı silebilirsiniz.
+// import 'package:eventure/screens/login_screen.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
@@ -21,7 +27,10 @@ class _SplashScreenState extends State<SplashScreen> {
     Timer(const Duration(seconds: 2), () {
       Navigator.pushReplacement(
         context,
-        MaterialPageRoute(builder: (context) => const LoginScreen()),
+        MaterialPageRoute(
+          // HATA BURADAYDI: HomePage() yerine EcommerceHomePage() kullanıyoruz.
+          builder: (context) => const EcommerceHomePage(),
+        ),
       );
     });
   }
