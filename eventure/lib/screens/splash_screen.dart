@@ -27,7 +27,7 @@ class _SplashScreenState extends State<SplashScreen> {
         context,
         MaterialPageRoute(
           // HATA BURADAYDI: HomePage() yerine EcommerceHomePage() kullanıyoruz.
-          builder: (context) => const EcommerceHomePage(),
+          builder: (context) => const LoginScreen(),
         ),
       );
     });
