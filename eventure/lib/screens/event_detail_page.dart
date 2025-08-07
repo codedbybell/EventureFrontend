@@ -7,7 +7,6 @@ class EventDetailPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // We'll use a consistent color for the background and container
     const Color customBackgroundColor = Color(0xFFF3F0F4);
 
     final theme = Theme.of(context);
