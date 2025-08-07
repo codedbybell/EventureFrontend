@@ -226,7 +226,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
     final eventsForSelectedDay = _etkinlikVeriTabani[_selectedDate] ?? [];
 
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       body: SafeArea(
         child: Column(
           children: [

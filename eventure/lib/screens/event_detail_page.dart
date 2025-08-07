@@ -137,18 +137,65 @@ class EventDetailPage extends StatelessWidget {
               // Apply Button
               SizedBox(
                 width: double.infinity,
-                child: ElevatedButton.icon(
+                child: ElevatedButton(
+                  // onPressed fonksiyonunu koruyoruz
                   onPressed: () {},
-                  label: const Text("Apply"),
-                  icon: const Icon(Icons.arrow_forward),
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: theme.colorScheme.primary,
-                    foregroundColor: Colors.white,
-                    padding: const EdgeInsets.symmetric(vertical: 16),
+                    // Butonun kendisini şeffaf yapıyoruz
+                    backgroundColor: Colors.transparent,
+                    shadowColor: Colors.transparent,
+                    padding: EdgeInsets
+                        .zero, // İç boşluğu sıfırlıyoruz ki Ink tam otursun
                     shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
+                      borderRadius: BorderRadius.circular(
+                        25,
+                      ), // Hedef stildeki yuvarlaklık
                     ),
-                    elevation: 2,
+                  ),
+                  child: Ink(
+                    decoration: BoxDecoration(
+                      // Hedef stildeki gradyanı uyguluyoruz
+                      gradient: LinearGradient(
+                        colors: [Color(0xFFFF6B9D), Color(0xFF4ECDC4)],
+                        begin: Alignment.centerLeft,
+                        end: Alignment.centerRight,
+                      ),
+                      borderRadius: BorderRadius.circular(
+                        25,
+                      ), // Dekorasyonun da yuvarlak olması lazım
+                    ),
+                    child: Container(
+                      width: double
+                          .infinity, // Butonun tam genişlikte olmasını sağlar
+                      padding: const EdgeInsets.symmetric(
+                        vertical: 16,
+                      ), // Yüksekliği ayarlamak için padding (orijinal butona benzer)
+                      child: Row(
+                        // İkon ve yazıyı ortalamak için
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          // Orijinal butondaki ikon
+                          const Icon(
+                            Icons.arrow_forward,
+                            color: Colors
+                                .white, // Gradyan üzerinde görünmesi için rengi beyaz yapıyoruz
+                          ),
+                          const SizedBox(
+                            width: 10,
+                          ), // İkon ile yazı arasına boşluk
+                          // Orijinal butondaki yazı
+                          const Text(
+                            "Apply",
+                            // Hedef stildeki yazı stiline benzetiyoruz
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 18,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
                   ),
                 ),
               ),

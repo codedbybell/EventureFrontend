@@ -170,14 +170,11 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Color(0xFFF8F8F8),
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
-        leading: IconButton(
-          icon: Icon(Icons.arrow_back_ios, color: Colors.black54),
-          onPressed: () => Navigator.pop(context),
-        ),
+
         title: Text(
           'Edit Profile',
           style: TextStyle(color: Colors.black87, fontWeight: FontWeight.w600),
