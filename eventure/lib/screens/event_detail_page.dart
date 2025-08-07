@@ -1,3 +1,5 @@
+// lib/screens/event_detail_page.dart (TASARIM KORUNARAK GÜNCELLENDİ)
+
 import 'package:flutter/material.dart';
 
 class EventDetailPage extends StatelessWidget {
@@ -7,52 +9,42 @@ class EventDetailPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    const Color customBackgroundColor = Color.fromARGB(255, 255, 255, 255);
+    // Sabit beyaz renk tanımı artık kullanılmayacak.
+    // const Color customBackgroundColor = Color.fromARGB(255, 255, 255, 255);
 
     final theme = Theme.of(context);
     return Scaffold(
-      backgroundColor: customBackgroundColor,
+      // --- TEK DEĞİŞİKLİK BURADA ---
+      // Arka plan rengi, sabit beyaz yerine artık temadan dinamik olarak alınıyor.
+      backgroundColor: theme.scaffoldBackgroundColor,
+
+      // Gradyanlı AppBar'ınızın yapısı olduğu gibi korunuyor.
       appBar: AppBar(
-        // 1. AppBar'ın kendi rengini şeffaf yapıyoruz ki alttaki gradyan görünsün.
         backgroundColor: Colors.transparent,
-
-        // 2. AppBar'ın altındaki varsayılan gölgeyi kaldırıyoruz.
         elevation: 0,
-
-        // 3. flexibleSpace kullanarak arka plana gradyanlı bir Container yerleştiriyoruz.
         flexibleSpace: Container(
           decoration: const BoxDecoration(
             gradient: LinearGradient(
               colors: [
                 Color(0xFFFF6B9D),
                 Color(0xFF4ECDC4),
-              ], // İstediğiniz gradyan
+              ],
               begin: Alignment.centerLeft,
               end: Alignment.centerRight,
             ),
           ),
         ),
-
-        // --- Orijinal AppBar içeriğiniz ---
-        // Geri butonu. Rengini gradyan üzerinde iyi görünmesi için beyaz yapıyoruz.
         leading: IconButton(
-          icon: const Icon(
-            Icons.arrow_back_ios,
-            color: Colors.white, // Değişiklik: Renk beyaz yapıldı
-          ),
+          icon: const Icon(Icons.arrow_back_ios, color: Colors.white),
           onPressed: () => Navigator.of(context).pop(),
         ),
-
-        // Başlık. Rengini yine beyaz yapıyoruz.
         title: Text(
           event['title'] ?? 'Event Detail',
           style: theme.textTheme.headlineSmall?.copyWith(
             fontWeight: FontWeight.bold,
-            color: Colors.white, // Değişiklik: Renk beyaz yapıldı
+            color: Colors.white,
           ),
         ),
-
-        // Başlığı ortalama özelliği aynı kalıyor.
         centerTitle: true,
       ),
       body: SingleChildScrollView(
@@ -61,27 +53,25 @@ class EventDetailPage extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // Event image
               ClipRRect(
                 borderRadius: BorderRadius.circular(16),
                 child: Image.network(
                   event['image'],
+                  height: 200,
+                  width: double.infinity,
                   fit: BoxFit.cover,
                   errorBuilder: (context, error, stackTrace) {
                     return Container(
                       height: 200,
                       width: double.infinity,
                       color: Colors.grey[300],
-                      child: Icon(
-                        Icons.image_not_supported,
-                        color: Colors.grey[600],
-                      ),
+                      child: Icon(Icons.image_not_supported,
+                          color: Colors.grey[600]),
                     );
                   },
                 ),
               ),
               const SizedBox(height: 16),
-              // Tags
               if (event['tags'] != null)
                 Wrap(
                   spacing: 8.0,
@@ -93,23 +83,20 @@ class EventDetailPage extends StatelessWidget {
                           backgroundColor: theme.colorScheme.surface,
                           labelStyle: theme.textTheme.bodyMedium,
                           padding: const EdgeInsets.symmetric(
-                            horizontal: 8,
-                            vertical: 4,
-                          ),
+                              horizontal: 8, vertical: 4),
                         ),
                       )
                       .toList(),
                 ),
               const SizedBox(height: 16),
-              // Organizer Info
               _buildInfoRow(
                 context,
                 icon: Icons.info_outline,
                 text: event['organizer'] ?? 'Not specified',
-                color: theme.colorScheme.background,
+                // Bu metnin rengini tema arka planına göre ayarlayalım
+                color: theme.colorScheme.onBackground.withOpacity(0.7),
               ),
               const SizedBox(height: 16),
-              // Title and Subtitle
               Text(
                 event['title'],
                 style: theme.textTheme.headlineSmall?.copyWith(
@@ -124,17 +111,15 @@ class EventDetailPage extends StatelessWidget {
                 ),
               ),
               const SizedBox(height: 24),
-              // Details Box
+              // Detay kutusunun rengi de artık temadan alınacak.
               Container(
                 padding: const EdgeInsets.all(16.0),
                 decoration: BoxDecoration(
-                  // We'll use the same consistent color here
-                  color: customBackgroundColor,
+                  color: theme.colorScheme.surface, // Temadan alınıyor
                   borderRadius: BorderRadius.circular(16),
                   boxShadow: [
                     BoxShadow(
-                      // Make the shadow more subtle
-                      color: Colors.grey.withOpacity(0.3),
+                      color: theme.shadowColor.withOpacity(0.1),
                       spreadRadius: 1,
                       blurRadius: 5,
                       offset: const Offset(0, 2),
@@ -158,59 +143,38 @@ class EventDetailPage extends StatelessWidget {
                 ),
               ),
               const SizedBox(height: 32),
-              // Apply Button
+              // Gradyanlı butonunuzun yapısı olduğu gibi korunuyor.
               SizedBox(
                 width: double.infinity,
                 child: ElevatedButton(
-                  // onPressed fonksiyonunu koruyoruz
                   onPressed: () {},
                   style: ElevatedButton.styleFrom(
-                    // Butonun kendisini şeffaf yapıyoruz
                     backgroundColor: Colors.transparent,
                     shadowColor: Colors.transparent,
-                    padding: EdgeInsets
-                        .zero, // İç boşluğu sıfırlıyoruz ki Ink tam otursun
+                    padding: EdgeInsets.zero,
                     shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(
-                        25,
-                      ), // Hedef stildeki yuvarlaklık
+                      borderRadius: BorderRadius.circular(25),
                     ),
                   ),
                   child: Ink(
                     decoration: BoxDecoration(
-                      // Hedef stildeki gradyanı uyguluyoruz
-                      gradient: LinearGradient(
+                      gradient: const LinearGradient(
                         colors: [Color(0xFFFF6B9D), Color(0xFF4ECDC4)],
                         begin: Alignment.centerLeft,
                         end: Alignment.centerRight,
                       ),
-                      borderRadius: BorderRadius.circular(
-                        25,
-                      ), // Dekorasyonun da yuvarlak olması lazım
+                      borderRadius: BorderRadius.circular(25),
                     ),
                     child: Container(
-                      width: double
-                          .infinity, // Butonun tam genişlikte olmasını sağlar
-                      padding: const EdgeInsets.symmetric(
-                        vertical: 16,
-                      ), // Yüksekliği ayarlamak için padding (orijinal butona benzer)
-                      child: Row(
-                        // İkon ve yazıyı ortalamak için
+                      width: double.infinity,
+                      padding: const EdgeInsets.symmetric(vertical: 16),
+                      child: const Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          // Orijinal butondaki ikon
-                          const Icon(
-                            Icons.arrow_forward,
-                            color: Colors
-                                .white, // Gradyan üzerinde görünmesi için rengi beyaz yapıyoruz
-                          ),
-                          const SizedBox(
-                            width: 10,
-                          ), // İkon ile yazı arasına boşluk
-                          // Orijinal butondaki yazı
-                          const Text(
+                          Icon(Icons.arrow_forward, color: Colors.white),
+                          SizedBox(width: 10),
+                          Text(
                             "Apply",
-                            // Hedef stildeki yazı stiline benzetiyoruz
                             style: TextStyle(
                               color: Colors.white,
                               fontSize: 18,
