@@ -1,165 +1,144 @@
+// lib/screens/home_page.dart (UPDATED)
+
+import 'package:eventure/screens/category_events_page.dart'; // YENİ EKLENDİ
+import 'package:eventure/screens/event_detail_page.dart';
 import 'package:flutter/material.dart';
 import 'dart:async';
 
-// 🎨 Color Palette Definitions
-const Color orangePalette = Color(0xFFFF9F1C);
-const Color tealPalette = Color(0xFF56C1C2);
-const Color salmonPalette = Color(0xFFF67280);
-const Color darkCoralPalette = Color(0xFFEB5E55);
-const Color lightYellowPalette = Color(0xFFFFE66D);
-
-// 🖤 Alternatives for Black
-const Color darkTextColor = Color(0xFF4E342E);
-const Color lightBackground = Color(0xFFFFFBF5);
-const Color darkBackground = Color(0xFF2c3e50);
-const Color darkSurface = Color(0xFF34495e);
-
-// --- LIGHT THEME ---
-final ThemeData lightTheme = ThemeData(
-  brightness: Brightness.light,
-  primaryColor: salmonPalette, // 🔁 Primary = Somon
-  scaffoldBackgroundColor: lightBackground,
-
-  colorScheme: const ColorScheme.light(
-    primary: salmonPalette,
-    onPrimary: Colors.white,
-    secondary: tealPalette,
-    onSecondary: Colors.white,
-    tertiary: orangePalette, // 🔁 Tertiary = Turuncu
-    onTertiary: Colors.white,
-    error: darkCoralPalette,
-    onError: Colors.white,
-    background: lightBackground,
-    onBackground: darkTextColor,
-    surface: Colors.white,
-    onSurface: darkTextColor,
-  ),
-
-  appBarTheme: const AppBarTheme(
-    backgroundColor: salmonPalette,
-    foregroundColor: Colors.white,
-    elevation: 2,
-  ),
-
-  floatingActionButtonTheme: const FloatingActionButtonThemeData(
-    backgroundColor: salmonPalette,
-    foregroundColor: Colors.white,
-  ),
-
-  elevatedButtonTheme: ElevatedButtonThemeData(
-    style: ElevatedButton.styleFrom(
-      backgroundColor: salmonPalette,
-      foregroundColor: Colors.white,
-    ),
-  ),
-
-  cardTheme: const CardThemeData(color: Colors.white, elevation: 1),
-
-  textTheme: const TextTheme(
-    displayLarge: TextStyle(color: darkTextColor),
-    displayMedium: TextStyle(color: darkTextColor),
-    displaySmall: TextStyle(color: darkTextColor),
-    headlineMedium: TextStyle(color: darkTextColor),
-    headlineSmall: TextStyle(color: darkTextColor),
-    titleLarge: TextStyle(color: darkTextColor),
-    bodyLarge: TextStyle(color: darkTextColor),
-    bodyMedium: TextStyle(color: darkTextColor),
-    labelLarge: TextStyle(color: Colors.white),
-  ),
-);
-
-// --- DARK THEME ---
-final ThemeData darkTheme = ThemeData(
-  brightness: Brightness.dark,
-  primaryColor: salmonPalette,
-  scaffoldBackgroundColor: darkBackground,
-
-  colorScheme: const ColorScheme.dark(
-    primary: salmonPalette,
-    onPrimary: darkTextColor,
-    secondary: orangePalette,
-    onSecondary: Colors.white,
-    tertiary: tealPalette,
-    onTertiary: Colors.white,
-    error: darkCoralPalette,
-    onError: Colors.white,
-    background: darkBackground,
-    onBackground: lightBackground,
-    surface: darkSurface,
-    onSurface: lightBackground,
-  ),
-
-  appBarTheme: const AppBarTheme(
-    backgroundColor: darkSurface,
-    foregroundColor: salmonPalette,
-    elevation: 0,
-  ),
-
-  floatingActionButtonTheme: const FloatingActionButtonThemeData(
-    backgroundColor: salmonPalette,
-    foregroundColor: darkTextColor,
-  ),
-
-  elevatedButtonTheme: ElevatedButtonThemeData(
-    style: ElevatedButton.styleFrom(
-      backgroundColor: salmonPalette,
-      foregroundColor: darkTextColor,
-    ),
-  ),
-
-  cardTheme: const CardThemeData(color: darkSurface),
-
-  textTheme: const TextTheme(
-    displayLarge: TextStyle(color: lightBackground),
-    displayMedium: TextStyle(color: lightBackground),
-    displaySmall: TextStyle(color: lightBackground),
-    headlineMedium: TextStyle(color: lightBackground),
-    headlineSmall: TextStyle(color: lightBackground),
-    titleLarge: TextStyle(color: lightBackground, fontWeight: FontWeight.bold),
-    bodyLarge: TextStyle(color: lightBackground),
-    bodyMedium: TextStyle(color: lightBackground),
-    labelLarge: TextStyle(color: darkTextColor),
-  ),
-);
-
-void main() {
-  runApp(const MyApp());
-}
-
-class MyApp extends StatelessWidget {
-  const MyApp({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Ecommerce Events App',
-      theme: lightTheme,
-      darkTheme: darkTheme,
-      themeMode: ThemeMode.dark, // Görseldeki gibi koyu temayı zorunlu kıl
-      home: const EcommerceHomePage(),
-      debugShowCheckedModeBanner: false,
-    );
-  }
-}
-
-// DUMMY DATA
-final List<Map<String, String>> upcomingEvents = [
+// --- DATA MODIFIED WITH 'category' KEY ---
+// This master list will be used by the category page.
+final List<Map<String, dynamic>> allEvents = [
+  // Upcoming Events
   {
     'image':
         'https://upload.wikimedia.org/wikipedia/en/7/79/Music_of_the_Spheres_World_Tour_Poster.png',
     'title': 'Coldplay Concert',
+    'subtitle': 'Music of the Spheres World Tour',
+    'location': 'Olympic Stadium, Athens',
+    'date': 'June 8-9, 2024',
+    'time': '08:00 PM - 11:00 PM',
+    'tags': ['Music', 'Pop', 'World Tour'],
+    'organizer': 'Live Nation',
+    'category': 'Concerts', // EKLENDİ
   },
   {
     'image':
         'https://i.milliyet.com.tr/MilliyetSanat640x412/2019/02/26/fft243_mf32581301.Jpeg',
     'title': 'Summer Fest',
+    'subtitle': 'The hottest festival of the year',
+    'location': 'Life Park, Istanbul',
+    'date': 'Aug 15-17, 2025',
+    'time': '04:00 PM - 02:00 AM',
+    'tags': ['Music', 'Festival', 'Summer'],
+    'organizer': 'Eventure Org.',
+    'category': 'Concerts', // EKLENDİ
+  },
+  {
+    'image':
+        'https://ce.yildiz.edu.tr:8080/news-images/62bc056f2cf4630012f603d0/teknofest2025-d22ec2cc-2612-4c47-897e-7d5024233431.jpg',
+    'title': 'Teknofest',
+    'subtitle': 'National Technology Initiative',
+    'location': 'Ataturk Airport, Istanbul',
+    'date': 'Apr 27 - May 1, 2025',
+    'time': '10:00 AM - 06:00 PM',
+    'tags': ['Technology', 'Festival', 'Aviation', 'Free'],
+    'organizer': 'T3 Foundation',
+    'category': 'Conferences', // EKLENDİ
   },
   {
     'image':
         'https://images.unsplash.com/photo-1505236858219-8359eb29e329?w=800',
     'title': 'Indie Night',
+    'subtitle': 'Independent voices on stage',
+    'location': 'Zorlu PSM, Istanbul',
+    'date': 'Sep 25, 2025',
+    'time': '09:00 PM - 12:00 AM',
+    'tags': ['Music', 'Indie', 'Concert'],
+    'organizer': 'PSM Music',
+    'category': 'Concerts', // EKLENDİ
+  },
+  // Popular Events
+  {
+    'image': 'https://istanbulfestivali.com/home_concerts_2025.jpg',
+    'title': 'Istanbul Festival',
+    'subtitle': 'The rhythm of the city is here',
+    'location': 'Festival Park, Yenikapi',
+    'date': 'Aug 6-17, 2025',
+    'time': '05:00 PM - 12:00 AM',
+    'tags': ['Music', 'Festival', 'Istanbul'],
+    'organizer': 'Ministry of Culture and Tourism',
+    'category': 'Concerts', // EKLENDİ
+  },
+  {
+    'image': 'https://iksv.org/i/content/21854_1_fm1366.jpg',
+    'title': 'Filmekimi',
+    'subtitle': 'The best films of autumn',
+    'location': 'Atlas 1948 & Kadikoy Cinema',
+    'date': 'Oct 4-13, 2025',
+    'time': '11:00 AM - 11:30 PM',
+    'tags': ['Cinema', 'Festival', 'Art'],
+    'organizer': 'IKSV',
+    'category': 'Cinema', // EKLENDİ
+  },
+  {
+    'image':
+        'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRLa-aGhiXWoqCrWCmFKZvODoURZBjU1ageLA&s',
+    'title': 'Zeytinli Rock Fest',
+    'subtitle': 'Turkey\'s biggest rock festival',
+    'location': 'Burhaniye, Balikesir',
+    'date': 'Sep 2-6, 2025',
+    'time': '03:00 PM - 03:00 AM',
+    'tags': ['Music', 'Rock', 'Festival'],
+    'organizer': 'Milyon Production',
+    'category': 'Concerts', // EKLENDİ
+  },
+  {
+    'image':
+        'https://images.unsplash.com/photo-1511578314322-379afb476865?w=800',
+    'title': 'Jazz Nights',
+    'subtitle': 'The magical notes of jazz',
+    'location': 'Nardis Jazz Club, Galata',
+    'date': 'Every Friday',
+    'time': '09:30 PM - 12:00 AM',
+    'tags': ['Music', 'Jazz', 'Live'],
+    'organizer': 'Nardis',
+    'category': 'Concerts', // EKLENDİ
+  },
+  {
+    'image':
+        'https://s1.wklcdn.com/image_165/4952886/68860315/45329743Master.jpg',
+    'title': 'Hiking Adventure',
+    'subtitle': 'Explore the Belgrad Forest',
+    'location': 'Belgrad Forest, Istanbul',
+    'date': 'Every Weekend',
+    'time': '09:00 AM - 04:00 PM',
+    'tags': ['Nature', 'Hiking', 'Outdoor'],
+    'organizer': 'Nature Lovers Club',
+    'category': 'Nature', // EKLENDİ
   },
 ];
+
+// These lists are now filtered from the master list for the home page UI
+final List<Map<String, dynamic>> upcomingEvents = allEvents
+    .where(
+      (e) => [
+        'Coldplay Concert',
+        'Summer Fest',
+        'Teknofest',
+        'Indie Night',
+      ].contains(e['title']),
+    )
+    .toList();
+final List<Map<String, dynamic>> popularEvents = allEvents
+    .where(
+      (e) => [
+        'Istanbul Festival',
+        'Filmekimi',
+        'Zeytinli Rock Fest',
+        'Jazz Nights',
+      ].contains(e['title']),
+    )
+    .toList();
 
 final List<Map<String, String>> eventCategories = [
   {
@@ -184,27 +163,6 @@ final List<Map<String, String>> eventCategories = [
   },
 ];
 
-final List<Map<String, String>> popularEvents = [
-  {
-    'image': 'https://istanbulfestivali.com/home_concerts_2025.jpg',
-    'title': 'Istanbul Festival',
-  },
-  {
-    'image': 'https://iksv.org/i/content/21854_1_fm1366.jpg',
-    'title': 'Filmekimi',
-  },
-  {
-    'image':
-        'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRLa-aGhiXWoqCrWCmFKZvODoURZBjU1ageLA&s',
-    'title': 'Zeytinli Festival',
-  },
-  {
-    'image':
-        'https://images.unsplash.com/photo-1511578314322-379afb476865?w=800',
-    'title': 'Jazz Nights',
-  },
-];
-
 class EcommerceHomePage extends StatefulWidget {
   const EcommerceHomePage({super.key});
 
@@ -213,6 +171,7 @@ class EcommerceHomePage extends StatefulWidget {
 }
 
 class _EcommerceHomePageState extends State<EcommerceHomePage> {
+  // ... (initState, dispose, and other methods remain the same)
   int _currentBottomNavIndex = 0;
   final PageController _pageController = PageController();
   int _currentBannerPage = 0;
@@ -221,16 +180,12 @@ class _EcommerceHomePageState extends State<EcommerceHomePage> {
   @override
   void initState() {
     super.initState();
-    // Banner'ın otomatik kaymasını sağlayan zamanlayıcı
     _timer = Timer.periodic(const Duration(seconds: 5), (Timer timer) {
-      if (_currentBannerPage < upcomingEvents.length - 1) {
-        _currentBannerPage++;
-      } else {
-        _currentBannerPage = 0;
-      }
+      if (!mounted) return;
+      int newPage = (_currentBannerPage + 1) % upcomingEvents.length;
       if (_pageController.hasClients) {
         _pageController.animateToPage(
-          _currentBannerPage,
+          newPage,
           duration: const Duration(milliseconds: 400),
           curve: Curves.easeIn,
         );
@@ -245,8 +200,28 @@ class _EcommerceHomePageState extends State<EcommerceHomePage> {
     super.dispose();
   }
 
+  void _navigateToDetail(Map<String, dynamic> eventData) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => EventDetailPage(event: eventData),
+      ),
+    );
+  }
+
+  // YENİ EKLENDİ
+  void _navigateToCategoryPage(String categoryName) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => CategoryEventsPage(categoryName: categoryName),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
+    // ... (Scaffold and other widgets remain the same)
     return Scaffold(
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: _currentBottomNavIndex,
@@ -304,6 +279,43 @@ class _EcommerceHomePageState extends State<EcommerceHomePage> {
     );
   }
 
+  // GÜNCELLENDİ: Kategori ikonları artık tıklanabilir
+  Widget _buildEventCategories(BuildContext context) {
+    return SizedBox(
+      height: 100,
+      child: ListView.builder(
+        scrollDirection: Axis.horizontal,
+        padding: const EdgeInsets.symmetric(horizontal: 16),
+        itemCount: eventCategories.length,
+        itemBuilder: (context, index) {
+          final category = eventCategories[index];
+          return GestureDetector(
+            onTap: () => _navigateToCategoryPage(category['label']!),
+            child: Container(
+              width: 80,
+              margin: const EdgeInsets.only(right: 16),
+              child: Column(
+                children: [
+                  CircleAvatar(
+                    radius: 35,
+                    backgroundImage: NetworkImage(category['image']!),
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    category['label']!,
+                    style: Theme.of(context).textTheme.bodyMedium,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ],
+              ),
+            ),
+          );
+        },
+      ),
+    );
+  }
+
+  // --- Diğer build metotları (_buildSearchBar, _buildSectionHeader, etc.) değişmeden kalır ---
   Widget _buildSearchBar(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
@@ -364,16 +376,20 @@ class _EcommerceHomePageState extends State<EcommerceHomePage> {
               });
             },
             itemBuilder: (context, index) {
-              return Container(
-                margin: const EdgeInsets.symmetric(
-                  horizontal: 16.0,
-                  vertical: 8.0,
-                ),
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(16),
-                  image: DecorationImage(
-                    image: NetworkImage(upcomingEvents[index]['image']!),
-                    fit: BoxFit.cover,
+              final event = upcomingEvents[index];
+              return GestureDetector(
+                onTap: () => _navigateToDetail(event),
+                child: Container(
+                  margin: const EdgeInsets.symmetric(
+                    horizontal: 16.0,
+                    vertical: 8.0,
+                  ),
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(16),
+                    image: DecorationImage(
+                      image: NetworkImage(event['image']!),
+                      fit: BoxFit.cover,
+                    ),
                   ),
                 ),
               );
@@ -402,38 +418,6 @@ class _EcommerceHomePageState extends State<EcommerceHomePage> {
     );
   }
 
-  Widget _buildEventCategories(BuildContext context) {
-    return SizedBox(
-      height: 100,
-      child: ListView.builder(
-        scrollDirection: Axis.horizontal,
-        padding: const EdgeInsets.symmetric(horizontal: 16),
-        itemCount: eventCategories.length,
-        itemBuilder: (context, index) {
-          final category = eventCategories[index];
-          return Container(
-            width: 80,
-            margin: const EdgeInsets.only(right: 16),
-            child: Column(
-              children: [
-                CircleAvatar(
-                  radius: 35,
-                  backgroundImage: NetworkImage(category['image']!),
-                ),
-                const SizedBox(height: 8),
-                Text(
-                  category['label']!,
-                  style: Theme.of(context).textTheme.bodyMedium,
-                  overflow: TextOverflow.ellipsis,
-                ),
-              ],
-            ),
-          );
-        },
-      ),
-    );
-  }
-
   Widget _buildPopularEvents(BuildContext context) {
     return SizedBox(
       height: 220,
@@ -443,28 +427,42 @@ class _EcommerceHomePageState extends State<EcommerceHomePage> {
         itemCount: popularEvents.length,
         itemBuilder: (context, index) {
           final event = popularEvents[index];
-          return Container(
-            width: 150,
-            margin: const EdgeInsets.only(right: 16),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                ClipRRect(
-                  borderRadius: BorderRadius.circular(12),
-                  child: Image.network(
-                    event['image']!,
-                    height: 180,
-                    width: 150,
-                    fit: BoxFit.cover,
+          return GestureDetector(
+            onTap: () => _navigateToDetail(event),
+            child: Container(
+              width: 150,
+              margin: const EdgeInsets.only(right: 16),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  ClipRRect(
+                    borderRadius: BorderRadius.circular(12),
+                    child: Image.network(
+                      event['image']!,
+                      height: 180,
+                      width: 150,
+                      fit: BoxFit.cover,
+                      errorBuilder: (context, error, stackTrace) {
+                        return Container(
+                          height: 180,
+                          width: 150,
+                          color: Colors.grey[300],
+                          child: Icon(
+                            Icons.image_not_supported,
+                            color: Colors.grey[600],
+                          ),
+                        );
+                      },
+                    ),
                   ),
-                ),
-                const SizedBox(height: 8),
-                Text(
-                  event['title']!,
-                  style: Theme.of(context).textTheme.bodyLarge,
-                  overflow: TextOverflow.ellipsis,
-                ),
-              ],
+                  const SizedBox(height: 8),
+                  Text(
+                    event['title']!,
+                    style: Theme.of(context).textTheme.bodyLarge,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ],
+              ),
             ),
           );
         },

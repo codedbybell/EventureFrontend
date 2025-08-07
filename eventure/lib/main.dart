@@ -1,3 +1,4 @@
+import 'package:eventure/screens/home_page.dart';
 import 'package:flutter/material.dart';
 import 'package:eventure/screens/splash_screen.dart';
 import 'package:eventure/theme/theme.dart' as AppTheme;
@@ -20,11 +21,12 @@ class MyApp extends StatelessWidget {
       themeMode: ThemeMode.system,
       title: 'Eventure',
       debugShowCheckedModeBanner: false,
-      initialRoute: '/',
+      initialRoute: '/home',
       routes: {
         '/': (context) => const SplashScreen(),
         '/login': (context) => const LoginScreen(),
         '/register': (context) => const RegisterScreen(),
+        '/home': (context) => EcommerceHomePage(),
       },
     );
   }
