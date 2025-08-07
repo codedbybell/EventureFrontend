@@ -1,4 +1,8 @@
+// lib/screens/login_screen.dart
+
 import 'package:flutter/material.dart';
+import '../models/auth_models.dart';
+import '../services/auth_service.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({Key? key}) : super(key: key);
@@ -8,8 +12,66 @@ class LoginScreen extends StatefulWidget {
 }
 
 class _LoginScreenState extends State<LoginScreen> {
+  // Form alanları için controller'lar
+  final _emailController = TextEditingController();
+  final _passwordController = TextEditingController();
+
+  // API servisi için bir örnek (instance)
+  final AuthService _authService = AuthService();
+
+  // UI durumları için değişkenler
   bool _isPasswordVisible = false;
   bool _rememberMe = false;
+  bool _isLoading = false;
+
+  // Giriş yapma fonksiyonu
+  Future<void> _login() async {
+    // Butona tekrar basılmasını engellemek için yüklenme durumunu başlat
+    setState(() {
+      _isLoading = true;
+    });
+
+    try {
+      final requestModel = LoginRequestModel(
+        email: _emailController.text.trim(),
+        password: _passwordController.text.trim(),
+      );
+
+      final response = await _authService.login(requestModel);
+
+      // Başarılı! Token'ları kaydet ve ana sayfaya yönlendir.
+      // TODO: Token'ları SharedPreferences veya FlutterSecureStorage ile kaydet.
+      print("Access Token: ${response.access}");
+      print("Refresh Token: ${response.refresh}");
+
+      // Ana sayfaya git ve geri dönme seçeneğini kaldır
+      if (mounted) {
+        Navigator.pushReplacementNamed(context, '/home');
+      }
+    } catch (e) {
+      // Hata durumunda kullanıcıya bilgi ver.
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Giriş yapılamadı: ${e.toString()}')),
+        );
+      }
+    } finally {
+      // İşlem bitince yüklenme durumunu sonlandır
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+        });
+      }
+    }
+  }
+
+  @override
+  void dispose() {
+    // Bellek sızıntılarını önlemek için controller'ları temizle
+    _emailController.dispose();
+    _passwordController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -30,6 +92,7 @@ class _LoginScreenState extends State<LoginScreen> {
               Text('Email', style: textTheme.bodyMedium),
               const SizedBox(height: 8),
               TextField(
+                controller: _emailController,
                 keyboardType: TextInputType.emailAddress,
                 style: TextStyle(color: colorScheme.onBackground),
                 decoration: const InputDecoration(
@@ -41,6 +104,7 @@ class _LoginScreenState extends State<LoginScreen> {
               Text('Password', style: textTheme.bodyMedium),
               const SizedBox(height: 8),
               TextField(
+                controller: _passwordController,
                 obscureText: !_isPasswordVisible,
                 style: TextStyle(color: colorScheme.onBackground),
                 decoration: InputDecoration(
@@ -80,7 +144,9 @@ class _LoginScreenState extends State<LoginScreen> {
                     ],
                   ),
                   TextButton(
-                    onPressed: () {},
+                    onPressed: () {
+                      // TODO: Şifremi unuttum özelliği eklenecek
+                    },
                     child: Text(
                       'Forgot Password?',
                       style: textTheme.bodySmall?.copyWith(
@@ -93,8 +159,17 @@ class _LoginScreenState extends State<LoginScreen> {
               const SizedBox(height: 40),
 
               ElevatedButton(
-                onPressed: () {},
-                child: Text('LOG IN', style: textTheme.labelLarge),
+                onPressed: _isLoading ? null : _login,
+                child: _isLoading
+                    ? const SizedBox(
+                        height: 24,
+                        width: 24,
+                        child: CircularProgressIndicator(
+                          color: Colors.white,
+                          strokeWidth: 3,
+                        ),
+                      )
+                    : Text('LOG IN', style: textTheme.labelLarge),
               ),
               const SizedBox(height: 20),
 
