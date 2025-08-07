@@ -10,7 +10,7 @@ class AllCategoriesPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('All Categories')),
+      appBar: AppBar(title: const Text('All Categories'), elevation: 1),
       body: GridView.builder(
         padding: const EdgeInsets.all(16.0),
         gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
@@ -34,6 +34,10 @@ class AllCategoriesPage extends StatelessWidget {
             },
             child: Card(
               clipBehavior: Clip.antiAlias,
+              elevation: 3,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
               child: GridTile(
                 footer: GridTileBar(
                   backgroundColor: Colors.black45,
