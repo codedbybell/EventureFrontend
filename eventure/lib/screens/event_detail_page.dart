@@ -13,22 +13,46 @@ class EventDetailPage extends StatelessWidget {
     return Scaffold(
       backgroundColor: customBackgroundColor,
       appBar: AppBar(
-        backgroundColor: customBackgroundColor,
+        // 1. AppBar'ın kendi rengini şeffaf yapıyoruz ki alttaki gradyan görünsün.
+        backgroundColor: Colors.transparent,
+
+        // 2. AppBar'ın altındaki varsayılan gölgeyi kaldırıyoruz.
         elevation: 0,
+
+        // 3. flexibleSpace kullanarak arka plana gradyanlı bir Container yerleştiriyoruz.
+        flexibleSpace: Container(
+          decoration: const BoxDecoration(
+            gradient: LinearGradient(
+              colors: [
+                Color(0xFFFF6B9D),
+                Color(0xFF4ECDC4),
+              ], // İstediğiniz gradyan
+              begin: Alignment.centerLeft,
+              end: Alignment.centerRight,
+            ),
+          ),
+        ),
+
+        // --- Orijinal AppBar içeriğiniz ---
+        // Geri butonu. Rengini gradyan üzerinde iyi görünmesi için beyaz yapıyoruz.
         leading: IconButton(
-          icon: Icon(
+          icon: const Icon(
             Icons.arrow_back_ios,
-            color: theme.colorScheme.onBackground,
+            color: Colors.white, // Değişiklik: Renk beyaz yapıldı
           ),
           onPressed: () => Navigator.of(context).pop(),
         ),
+
+        // Başlık. Rengini yine beyaz yapıyoruz.
         title: Text(
           event['title'] ?? 'Event Detail',
           style: theme.textTheme.headlineSmall?.copyWith(
             fontWeight: FontWeight.bold,
-            color: theme.colorScheme.onBackground,
+            color: Colors.white, // Değişiklik: Renk beyaz yapıldı
           ),
         ),
+
+        // Başlığı ortalama özelliği aynı kalıyor.
         centerTitle: true,
       ),
       body: SingleChildScrollView(
