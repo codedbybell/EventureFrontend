@@ -5,6 +5,7 @@ import 'package:flutter/material.dart'; // <<--- EKSİK OLAN VE TÜM HATALARI D�
 
 import 'package:eventure/screens/category_events_page.dart';
 import 'package:eventure/screens/event_detail_page.dart';
+import 'package:eventure/screens/profil_edit_screen.dart';
 
 // --- Bütün Etkinlikleri İçeren Ana Liste ---
 final List<Map<String, dynamic>> allEvents = [
@@ -252,6 +253,7 @@ class _EcommerceHomePageState extends State<EcommerceHomePage> {
     );
   }
 
+  @override
   @override
   Widget build(BuildContext context) {
     return WillPopScope(
