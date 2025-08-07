@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:eventure/theme/theme.dart' as AppTheme;
 
 class EventDetailPage extends StatelessWidget {
   final Map<String, dynamic> event;
@@ -8,27 +7,40 @@ class EventDetailPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // We'll use a consistent color for the background and container
+    const Color customBackgroundColor = Color(0xFFF3F0F4);
+
     final theme = Theme.of(context);
     return Scaffold(
-      backgroundColor: theme.scaffoldBackgroundColor,
-      body: CustomScrollView(
-        slivers: [
-          SliverAppBar(
-            expandedHeight: 250.0,
-            backgroundColor: theme.scaffoldBackgroundColor,
-            elevation: 0,
-            pinned: true,
-            leading: IconButton(
-              icon: const Icon(Icons.arrow_back_ios),
-              color: AppTheme.neutralGray, // Rengi tema dosyasından al
-              onPressed: () => Navigator.of(context).pop(),
-            ),
-            flexibleSpace: FlexibleSpaceBar(
-              background: ClipRRect(
-                borderRadius: const BorderRadius.only(
-                  bottomLeft: Radius.circular(24),
-                  bottomRight: Radius.circular(24),
-                ),
+      backgroundColor: customBackgroundColor,
+      appBar: AppBar(
+        backgroundColor: customBackgroundColor,
+        elevation: 0,
+        leading: IconButton(
+          icon: Icon(
+            Icons.arrow_back_ios,
+            color: theme.colorScheme.onBackground,
+          ),
+          onPressed: () => Navigator.of(context).pop(),
+        ),
+        title: Text(
+          event['title'] ?? 'Event Detail',
+          style: theme.textTheme.headlineSmall?.copyWith(
+            fontWeight: FontWeight.bold,
+            color: theme.colorScheme.onBackground,
+          ),
+        ),
+        centerTitle: true,
+      ),
+      body: SingleChildScrollView(
+        child: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // Event image
+              ClipRRect(
+                borderRadius: BorderRadius.circular(16),
                 child: Image.network(
                   event['image'],
                   fit: BoxFit.cover,
@@ -45,100 +57,105 @@ class EventDetailPage extends StatelessWidget {
                   },
                 ),
               ),
-            ),
-          ),
-          SliverToBoxAdapter(
-            child: Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  if (event['tags'] != null)
-                    Wrap(
-                      spacing: 8.0,
-                      runSpacing: 4.0,
-                      children: (event['tags'] as List<dynamic>)
-                          .map(
-                            (tag) => Chip(
-                              label: Text(tag.toString()),
-                              backgroundColor: theme.colorScheme.surface,
-                              labelStyle: theme.textTheme.bodyMedium,
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 8,
-                                vertical: 4,
-                              ),
-                            ),
-                          )
-                          .toList(),
-                    ),
-                  const SizedBox(height: 16),
-                  _buildInfoRow(
-                    context,
-                    icon: Icons.info_outline,
-                    text: event['organizer'] ?? 'Not specified',
-                    color: theme.colorScheme.onBackground.withOpacity(0.8),
-                  ),
-                  const SizedBox(height: 16),
-                  Text(
-                    event['title'],
-                    style: theme.textTheme.headlineSmall?.copyWith(
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  const SizedBox(height: 8),
-                  Text(
-                    event['subtitle'],
-                    style: theme.textTheme.titleMedium?.copyWith(
-                      color: theme.colorScheme.onBackground.withOpacity(0.8),
-                    ),
-                  ),
-                  const SizedBox(height: 24),
-                  Container(
-                    padding: const EdgeInsets.all(16.0),
-                    decoration: BoxDecoration(
-                      color: theme.colorScheme.surface,
-                      borderRadius: BorderRadius.circular(16),
-                    ),
-                    child: Column(
-                      children: [
-                        _buildInfoRow(
-                          context,
-                          icon: Icons.location_on_outlined,
-                          text: event['location'] ?? 'Location not specified',
+              const SizedBox(height: 16),
+              // Tags
+              if (event['tags'] != null)
+                Wrap(
+                  spacing: 8.0,
+                  runSpacing: 4.0,
+                  children: (event['tags'] as List<dynamic>)
+                      .map(
+                        (tag) => Chip(
+                          label: Text(tag.toString()),
+                          backgroundColor: theme.colorScheme.surface,
+                          labelStyle: theme.textTheme.bodyMedium,
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 8,
+                            vertical: 4,
+                          ),
                         ),
-                        const Divider(height: 24),
-                        _buildInfoRow(
-                          context,
-                          icon: Icons.calendar_today_outlined,
-                          text:
-                              '${event['date'] ?? ''}  ${event['time'] ?? ''}',
-                        ),
-                      ],
-                    ),
-                  ),
-                  const SizedBox(height: 32),
-                  SizedBox(
-                    width: double.infinity,
-                    child: ElevatedButton.icon(
-                      onPressed: () {},
-                      label: const Text("Apply"),
-                      icon: const Icon(Icons.arrow_forward),
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: const Color(0xFF6A4DBA),
-                        foregroundColor: Colors.white,
-                        padding: const EdgeInsets.symmetric(vertical: 16),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                        elevation: 2,
-                      ),
-                    ),
-                  ),
-                ],
+                      )
+                      .toList(),
+                ),
+              const SizedBox(height: 16),
+              // Organizer Info
+              _buildInfoRow(
+                context,
+                icon: Icons.info_outline,
+                text: event['organizer'] ?? 'Not specified',
+                color: theme.colorScheme.onBackground.withOpacity(0.8),
               ),
-            ),
+              const SizedBox(height: 16),
+              // Title and Subtitle
+              Text(
+                event['title'],
+                style: theme.textTheme.headlineSmall?.copyWith(
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              const SizedBox(height: 8),
+              Text(
+                event['subtitle'],
+                style: theme.textTheme.titleMedium?.copyWith(
+                  color: theme.colorScheme.onBackground.withOpacity(0.8),
+                ),
+              ),
+              const SizedBox(height: 24),
+              // Details Box
+              Container(
+                padding: const EdgeInsets.all(16.0),
+                decoration: BoxDecoration(
+                  // We'll use the same consistent color here
+                  color: customBackgroundColor,
+                  borderRadius: BorderRadius.circular(16),
+                  boxShadow: [
+                    BoxShadow(
+                      // Make the shadow more subtle
+                      color: Colors.grey.withOpacity(0.1),
+                      spreadRadius: 1,
+                      blurRadius: 5,
+                      offset: const Offset(0, 2),
+                    ),
+                  ],
+                ),
+                child: Column(
+                  children: [
+                    _buildInfoRow(
+                      context,
+                      icon: Icons.location_on_outlined,
+                      text: event['location'] ?? 'Location not specified',
+                    ),
+                    const Divider(height: 24),
+                    _buildInfoRow(
+                      context,
+                      icon: Icons.calendar_today_outlined,
+                      text: '${event['date'] ?? ''}  ${event['time'] ?? ''}',
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 32),
+              // Apply Button
+              SizedBox(
+                width: double.infinity,
+                child: ElevatedButton.icon(
+                  onPressed: () {},
+                  label: const Text("Apply"),
+                  icon: const Icon(Icons.arrow_forward),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: const Color(0xFF6A4DBA),
+                    foregroundColor: Colors.white,
+                    padding: const EdgeInsets.symmetric(vertical: 16),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    elevation: 2,
+                  ),
+                ),
+              ),
+            ],
           ),
-        ],
+        ),
       ),
     );
   }
