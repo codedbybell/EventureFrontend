@@ -537,7 +537,7 @@ class _DateWidget extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: List.generate(
                   // YENİ MANTIK: Etkinlik sayısı (dots) 0'dan büyükse 1, değilse 0 döndür.
-                  // Bu sayede her zaman en fazla bir nokta gösterilir.
+                  // Bu sayede her zaman en fazla bir nokta gösterilir...
                   dots > 0 ? 1 : 0,
                   (index) => Container(
                     margin: const EdgeInsets.symmetric(horizontal: 1.5),
