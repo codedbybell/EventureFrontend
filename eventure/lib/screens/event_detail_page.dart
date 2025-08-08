@@ -19,13 +19,13 @@ class EventDetailPage extends StatelessWidget {
     String formattedTime = _formatTime(context, event.time);
 
     return Scaffold(
-      // Arka plan rengini temadan alıyoruz, böylece karanlık/aydınlık mod uyumlu olur
+      // Arka plan rengini temadan alıyoruz
       backgroundColor: theme.scaffoldBackgroundColor,
-      
-      // Gövde içeriğinin AppBar'ın arkasına geçmesini sağlıyoruz
-      extendBodyBehindAppBar: true, 
 
-      // AppBar'ı şeffaf ve gradyanlı yapıyoruz
+      // Gövde içeriğinin AppBar'ın arkasına geçmesini sağlıyoruz
+      extendBodyBehindAppBar: true,
+
+      // AppBar (Şeffaf ve Gradyanlı)
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
@@ -34,7 +34,7 @@ class EventDetailPage extends StatelessWidget {
           onPressed: () => Navigator.of(context).pop(),
         ),
         title: Text(
-          'Event Detail', // AppBar başlığı sabit kalabilir
+          'Event Detail',
           style: textTheme.titleLarge?.copyWith(
             fontWeight: FontWeight.bold,
             color: Colors.white,
@@ -43,8 +43,8 @@ class EventDetailPage extends StatelessWidget {
         centerTitle: true,
       ),
 
+      // Sayfa Gövdesi
       body: SingleChildScrollView(
-        // padding: EdgeInsets.zero ile kenar boşluklarını sıfırlıyoruz
         padding: EdgeInsets.zero,
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -59,7 +59,7 @@ class EventDetailPage extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   const SizedBox(height: 16),
-                  
+
                   // Etiketler (Tags)
                   if (event.tags.isNotEmpty)
                     Wrap(
@@ -68,7 +68,8 @@ class EventDetailPage extends StatelessWidget {
                       children: event.tags
                           .map((tag) => Chip(
                                 label: Text(tag),
-                                backgroundColor: colorScheme.primaryContainer.withOpacity(0.5),
+                                backgroundColor: colorScheme.primaryContainer
+                                    .withOpacity(0.5),
                                 labelStyle: textTheme.bodyMedium?.copyWith(
                                   color: colorScheme.onPrimaryContainer,
                                 ),
@@ -76,11 +77,12 @@ class EventDetailPage extends StatelessWidget {
                           .toList(),
                     ),
                   if (event.tags.isNotEmpty) const SizedBox(height: 24),
-                  
+
                   // Açıklama
                   Text(
                     'About this event',
-                    style: textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
+                    style: textTheme.titleLarge
+                        ?.copyWith(fontWeight: FontWeight.bold),
                   ),
                   const SizedBox(height: 8),
                   Text(
@@ -93,24 +95,32 @@ class EventDetailPage extends StatelessWidget {
                   const SizedBox(height: 24),
 
                   // Bilgi Kutusu (Tarih, Saat, Lokasyon, Organizatör)
-                  _buildInfoBox(context, formattedDate, formattedTime, event, colorScheme, textTheme),
-                  
-                  const SizedBox(height: 32),
-                  
-                  // Gradyanlı Buton
-                  _buildGradientButton(context),
+                  _buildInfoBox(context, formattedDate, formattedTime, event,
+                      colorScheme),
+
+                  // Buton ile içerik arasına boşluk bırakmak için
+                  const SizedBox(
+                      height: 100), // Butonun içeriğin üzerine gelmemesi için
                 ],
               ),
             ),
           ],
         ),
       ),
+
+      // --- EKLENEN KISIM: EKRANIN ALTINA SABİTLENMİŞ BUTON ---
+      bottomNavigationBar: Padding(
+        // Kenar boşlukları ile butonu daha estetik hale getiriyoruz
+        padding: const EdgeInsets.fromLTRB(16, 8, 16, 24),
+        child: _buildGradientButton(context),
+      ),
     );
   }
 
   // --- Yardımcı Widget'lar ---
 
-  Widget _buildHeaderSection(BuildContext context, Event event, TextTheme textTheme) {
+  Widget _buildHeaderSection(
+      BuildContext context, Event event, TextTheme textTheme) {
     return Container(
       height: 300,
       decoration: const BoxDecoration(
@@ -122,21 +132,21 @@ class EventDetailPage extends StatelessWidget {
       ),
       child: Stack(
         children: [
-          // Arka plan resmi (biraz şeffaf)
           Positioned.fill(
             child: Opacity(
               opacity: 0.3,
               child: Image.network(
                 event.image,
                 fit: BoxFit.cover,
-                errorBuilder: (context, error, stackTrace) => const SizedBox.shrink(),
+                errorBuilder: (context, error, stackTrace) =>
+                    const SizedBox.shrink(),
               ),
             ),
           ),
-          // Ana içerik (resim ve başlık)
           Center(
             child: Padding(
-              padding: const EdgeInsets.fromLTRB(16, kToolbarHeight + 16, 16, 16),
+              padding:
+                  const EdgeInsets.fromLTRB(16, kToolbarHeight + 16, 16, 16),
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
@@ -150,10 +160,10 @@ class EventDetailPage extends StatelessWidget {
                       errorBuilder: (context, error, stackTrace) => Container(
                         height: 150,
                         decoration: BoxDecoration(
-                          color: Colors.white.withOpacity(0.2),
-                          borderRadius: BorderRadius.circular(16)
-                        ),
-                        child: Icon(Icons.image_not_supported, color: Colors.white.withOpacity(0.7), size: 50),
+                            color: Colors.white.withOpacity(0.2),
+                            borderRadius: BorderRadius.circular(16)),
+                        child: Icon(Icons.image_not_supported,
+                            color: Colors.white.withOpacity(0.7), size: 50),
                       ),
                     ),
                   ),
@@ -161,12 +171,13 @@ class EventDetailPage extends StatelessWidget {
                   Text(
                     event.title,
                     style: textTheme.headlineSmall?.copyWith(
-                      color: Colors.white,
-                      fontWeight: FontWeight.bold,
-                      shadows: [
-                        Shadow(blurRadius: 5.0, color: Colors.black.withOpacity(0.5))
-                      ]
-                    ),
+                        color: Colors.white,
+                        fontWeight: FontWeight.bold,
+                        shadows: [
+                          Shadow(
+                              blurRadius: 5.0,
+                              color: Colors.black.withOpacity(0.5))
+                        ]),
                     textAlign: TextAlign.center,
                   ),
                 ],
@@ -177,8 +188,9 @@ class EventDetailPage extends StatelessWidget {
       ),
     );
   }
-  
-  Widget _buildInfoBox(BuildContext context, String formattedDate, String formattedTime, Event event, ColorScheme colorScheme, TextTheme textTheme) {
+
+  Widget _buildInfoBox(BuildContext context, String formattedDate,
+      String formattedTime, Event event, ColorScheme colorScheme) {
     return Container(
       padding: const EdgeInsets.all(16.0),
       decoration: BoxDecoration(
@@ -187,19 +199,24 @@ class EventDetailPage extends StatelessWidget {
       ),
       child: Column(
         children: [
-          _buildInfoRow(context, icon: Icons.calendar_today_outlined, text: formattedDate),
+          _buildInfoRow(context,
+              icon: Icons.calendar_today_outlined, text: formattedDate),
           const Divider(height: 24),
-          _buildInfoRow(context, icon: Icons.access_time_outlined, text: formattedTime),
+          _buildInfoRow(context,
+              icon: Icons.access_time_outlined, text: formattedTime),
           const Divider(height: 24),
-          _buildInfoRow(context, icon: Icons.location_on_outlined, text: event.location),
+          _buildInfoRow(context,
+              icon: Icons.location_on_outlined, text: event.location),
           const Divider(height: 24),
-          _buildInfoRow(context, icon: Icons.person_outline, text: "by ${event.organizerUsername}"),
+          _buildInfoRow(context,
+              icon: Icons.person_outline,
+              text: "by ${event.organizerUsername}"),
           if (event.capacity > 0) ...[
             const Divider(height: 24),
             _buildInfoRow(
               context,
               icon: Icons.people_outline,
-              text: '${event.bookingsCount} / ${event.capacity} Booked',
+              text: '${event.bookingCounts} / ${event.capacity} Booked',
             ),
           ],
         ],
@@ -208,39 +225,36 @@ class EventDetailPage extends StatelessWidget {
   }
 
   Widget _buildGradientButton(BuildContext context) {
-    return SizedBox(
-      width: double.infinity,
-      child: ElevatedButton(
-        onPressed: () {
-           ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(content: Text('Booking for ${event.title}...')),
-            );
-        },
-        style: ElevatedButton.styleFrom(
+    return ElevatedButton(
+      onPressed: () {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Booking for ${event.title}...')),
+        );
+      },
+      style: ElevatedButton.styleFrom(
           padding: EdgeInsets.zero,
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(25)),
+          shape:
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(25)),
           elevation: 5,
-          shadowColor: const Color(0xFFFF6B9D).withOpacity(0.5)
-        ),
-        child: Ink(
-          decoration: BoxDecoration(
-            gradient: const LinearGradient(
-              colors: [Color(0xFFFF6B9D), Color(0xFF4ECDC4)],
-              begin: Alignment.centerLeft,
-              end: Alignment.centerRight,
-            ),
-            borderRadius: BorderRadius.circular(25),
+          shadowColor: const Color(0xFFFF6B9D).withOpacity(0.5)),
+      child: Ink(
+        decoration: BoxDecoration(
+          gradient: const LinearGradient(
+            colors: [Color(0xFFFF6B9D), Color(0xFF4ECDC4)],
+            begin: Alignment.centerLeft,
+            end: Alignment.centerRight,
           ),
-          child: Container(
-            padding: const EdgeInsets.symmetric(vertical: 16),
-            alignment: Alignment.center,
-            child: const Text(
-              "Book Now",
-              style: TextStyle(
-                color: Colors.white,
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-              ),
+          borderRadius: BorderRadius.circular(25),
+        ),
+        child: Container(
+          padding: const EdgeInsets.symmetric(vertical: 16),
+          alignment: Alignment.center,
+          child: const Text(
+            "Book Now",
+            style: TextStyle(
+              color: Colors.white,
+              fontSize: 18,
+              fontWeight: FontWeight.bold,
             ),
           ),
         ),

@@ -25,29 +25,6 @@ class _AllPopularEventsPageState extends State<AllPopularEventsPage> {
     final theme = Theme.of(context);
 
     return Scaffold(
-
-      
-      body: FutureBuilder<List<Event>>(
-        future: _popularEventsFuture,
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return const Center(child: CircularProgressIndicator());
-          } else if (snapshot.hasError) {
-            return Center(child: Text('Error: ${snapshot.error}'));
-          } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-            return const Center(child: Text('No popular events found.'));
-          }
-
-          final events = snapshot.data!;
-          return ListView.builder(
-            padding: const EdgeInsets.all(12.0),
-            itemCount: events.length,
-            itemBuilder: (context, index) {
-              final event = events[index];
-              return _buildEventCard(context, event);
-            },
-          );
-
       appBar: AppBar(
         // 1. Arka planı şeffaf yapıp gölgeyi kaldırıyoruz.
         backgroundColor: Colors.transparent,
@@ -94,8 +71,26 @@ class _AllPopularEventsPageState extends State<AllPopularEventsPage> {
             true, // Başlığı ortalamak estetik olarak daha iyi duracaktır.
         automaticallyImplyLeading: false,
       ),
-          
+      body: FutureBuilder<List<Event>>(
+        future: _popularEventsFuture,
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return const Center(child: CircularProgressIndicator());
+          } else if (snapshot.hasError) {
+            return Center(child: Text('Error: ${snapshot.error}'));
+          } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+            return const Center(child: Text('No popular events found.'));
+          }
 
+          final events = snapshot.data!;
+          return ListView.builder(
+            padding: const EdgeInsets.all(12.0),
+            itemCount: events.length,
+            itemBuilder: (context, index) {
+              final event = events[index];
+              return _buildEventCard(context, event);
+            },
+          );
         },
       ),
     );
@@ -139,8 +134,8 @@ class _AllPopularEventsPageState extends State<AllPopularEventsPage> {
                     Text(
                       event.title,
                       style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                        fontWeight: FontWeight.bold,
-                      ),
+                            fontWeight: FontWeight.bold,
+                          ),
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,
                     ),

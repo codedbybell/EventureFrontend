@@ -12,13 +12,55 @@ class AllCategoriesPage extends StatelessWidget {
     final theme = Theme.of(context);
 
     return Scaffold(
+      appBar: AppBar(
+        // 1. AppBar'ın arkaplanını şeffaf yapıyoruz ki alttaki gradyan görünsün.
+        backgroundColor: Colors.transparent,
 
-      
+        // 2. AppBar'ın altındaki gölgeyi kaldırıyoruz.
+        elevation: 0,
+
+        // 3. 'flexibleSpace' ile arka plana istediğimiz gradyan rengini ekliyoruz.
+        flexibleSpace: Container(
+          decoration: const BoxDecoration(
+            gradient: LinearGradient(
+              colors: [
+                Color(0xFFFF6B9D), // Pembe tonu
+                Color(0xFF4ECDC4), // Turkuaz tonu
+              ],
+              begin: Alignment.centerLeft,
+              end: Alignment.centerRight,
+            ),
+          ),
+        ),
+
+        // --- Orijinal AppBar içeriğiniz gradyan stile uyarlandı ---
+
+        // 4. Geri butonunun rengini, gradyan üzerinde daha iyi görünmesi için beyaz yapıyoruz.
+        leading: IconButton(
+          onPressed: () {
+            // Butona tıklandığında bir önceki sayfaya döner.
+            Navigator.pop(context);
+          },
+          icon: const Icon(
+            Icons.arrow_back_ios,
+            color: Colors.white, // Değişiklik: Renk beyaz yapıldı.
+          ),
+        ),
+
+        // 5. Başlığın rengini de okunabilirlik için beyaz yapıyoruz.
+        title: const Text(
+          'All Categories',
+          style: TextStyle(
+            color: Colors.white, // Değişiklik: Renk beyaz yapıldı.
+          ),
+        ),
+        centerTitle: true, // Başlığı ortalar.
+      ),
       body: FutureBuilder<List<Category>>(
         // EventService'i kullanıyorsanız, buranın doğru olduğundan emin olun.
         // Eğer ayrı bir CategoryService varsa, bu kullanım doğrudur.
         future: EventService().fetchCategories(),
-        
+
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return const Center(child: CircularProgressIndicator());
@@ -29,7 +71,7 @@ class AllCategoriesPage extends StatelessWidget {
           }
 
           final categories = snapshot.data!;
-          
+
           return GridView.builder(
             padding: const EdgeInsets.all(16.0),
             gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
@@ -79,52 +121,6 @@ class AllCategoriesPage extends StatelessWidget {
                       },
                     ),
                   ),
-
-      appBar: AppBar(
-        // 1. AppBar'ın arkaplanını şeffaf yapıyoruz ki alttaki gradyan görünsün.
-        backgroundColor: Colors.transparent,
-
-        // 2. AppBar'ın altındaki gölgeyi kaldırıyoruz.
-        elevation: 0,
-
-        // 3. 'flexibleSpace' ile arka plana istediğimiz gradyan rengini ekliyoruz.
-        flexibleSpace: Container(
-          decoration: const BoxDecoration(
-            gradient: LinearGradient(
-              colors: [
-                Color(0xFFFF6B9D), // Pembe tonu
-                Color(0xFF4ECDC4), // Turkuaz tonu
-              ],
-              begin: Alignment.centerLeft,
-              end: Alignment.centerRight,
-            ),
-          ),
-        ),
-
-        // --- Orijinal AppBar içeriğiniz gradyan stile uyarlandı ---
-
-        // 4. Geri butonunun rengini, gradyan üzerinde daha iyi görünmesi için beyaz yapıyoruz.
-        leading: IconButton(
-          onPressed: () {
-            // Butona tıklandığında bir önceki sayfaya döner.
-            Navigator.pop(context);
-          },
-          icon: const Icon(
-            Icons.arrow_back_ios,
-            color: Colors.white, // Değişiklik: Renk beyaz yapıldı.
-          ),
-        ),
-
-        // 5. Başlığın rengini de okunabilirlik için beyaz yapıyoruz.
-        title: const Text(
-          'All Categories',
-          style: TextStyle(
-            color: Colors.white, // Değişiklik: Renk beyaz yapıldı.
-          ),
-        ),
-        centerTitle: true, // Başlığı ortalar.
-      ),
-
                 ),
               );
             },
