@@ -510,7 +510,8 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
             backgroundColor: Color(0xFF56C1C2),
           ),
         );
-        Navigator.pop(context);
+        // Logout işlemi burada çağrılıyor delete access token and refresh token
+        _logout();
       },
       style: TextButton.styleFrom(
         foregroundColor: Theme.of(context).colorScheme.error,
