@@ -156,7 +156,7 @@ class _EcommerceHomePageState extends State<EcommerceHomePage> {
           currentIndex: _currentBottomNavIndex,
           onTap: (index) => setState(() => _currentBottomNavIndex = index),
           backgroundColor: Theme.of(context).scaffoldBackgroundColor,
-          selectedItemColor: Theme.of(context).colorScheme.onBackground,
+          selectedItemColor: Theme.of(context).colorScheme.secondary,
           unselectedItemColor: Theme.of(
             context,
           ).colorScheme.onBackground.withOpacity(0.6),

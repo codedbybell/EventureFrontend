@@ -21,8 +21,12 @@ class _AllPopularEventsPageState extends State<AllPopularEventsPage> {
 
   @override
   Widget build(BuildContext context) {
+    // YENİ: Renk kodunu kullanabilmek için mevcut temayı alıyoruz.
+    final theme = Theme.of(context);
+
     return Scaffold(
-      appBar: AppBar(title: const Text('Popular Events')),
+
+      
       body: FutureBuilder<List<Event>>(
         future: _popularEventsFuture,
         builder: (context, snapshot) {
@@ -43,6 +47,55 @@ class _AllPopularEventsPageState extends State<AllPopularEventsPage> {
               return _buildEventCard(context, event);
             },
           );
+
+      appBar: AppBar(
+        // 1. Arka planı şeffaf yapıp gölgeyi kaldırıyoruz.
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+
+        // 2. 'flexibleSpace' ile gradyan arka planı ekliyoruz.
+        flexibleSpace: Container(
+          decoration: const BoxDecoration(
+            gradient: LinearGradient(
+              colors: [
+                Color(0xFFFF6B9D), // Pembe tonu
+                Color(0xFF4ECDC4), // Turkuaz tonu
+              ],
+              begin: Alignment.centerLeft,
+              end: Alignment.centerRight,
+            ),
+          ),
+        ),
+
+        // --- Orijinal AppBar içeriğiniz gradyan stile uyarlandı ---
+
+        // 3. Geri butonunun rengi gradyan üzerinde okunması için beyaz yapıldı.
+        leading: IconButton(
+          onPressed: () {
+            // Bir önceki sayfaya döner.
+            Navigator.of(context).pop();
+          },
+          icon: const Icon(
+            Icons.arrow_back_ios,
+            color: Colors.white, // Değişiklik: Renk beyaz yapıldı.
+          ),
+        ),
+
+        // 4. Başlığın rengi de beyaz yapıldı.
+        title: const Text(
+          'Popular Events',
+          style: TextStyle(
+            color: Colors.white, // Değişiklik: Renk beyaz yapıldı.
+          ),
+        ),
+
+        // Orijinal kodunuzdaki bu özellikler korunuyor.
+        centerTitle:
+            true, // Başlığı ortalamak estetik olarak daha iyi duracaktır.
+        automaticallyImplyLeading: false,
+      ),
+          
+
         },
       ),
     );
