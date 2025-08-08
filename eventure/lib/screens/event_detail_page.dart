@@ -1,229 +1,261 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart'; // Tarih formatlama için
+import 'package:eventure/models/event_model.dart';
 
 class EventDetailPage extends StatelessWidget {
-  final Map<String, dynamic> event;
+  final Event event;
 
   const EventDetailPage({super.key, required this.event});
 
   @override
   Widget build(BuildContext context) {
-    const Color customBackgroundColor = Color.fromARGB(255, 255, 255, 255);
-
+    // Tema ve renk şemalarına kolay erişim
     final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+    final textTheme = theme.textTheme;
+
+    // Tarih ve saati kullanıcı dostu formata çevirme
+    String formattedDate = _formatDate(event.date);
+    String formattedTime = _formatTime(context, event.time);
+
     return Scaffold(
-      backgroundColor: customBackgroundColor,
+      // Arka plan rengini temadan alıyoruz
+      backgroundColor: theme.scaffoldBackgroundColor,
+
+      // Gövde içeriğinin AppBar'ın arkasına geçmesini sağlıyoruz
+      extendBodyBehindAppBar: true,
+
+      // AppBar (Şeffaf ve Gradyanlı)
       appBar: AppBar(
-        // 1. AppBar'ın kendi rengini şeffaf yapıyoruz ki alttaki gradyan görünsün.
         backgroundColor: Colors.transparent,
-
-        // 2. AppBar'ın altındaki varsayılan gölgeyi kaldırıyoruz.
         elevation: 0,
-
-        // 3. flexibleSpace kullanarak arka plana gradyanlı bir Container yerleştiriyoruz.
-        flexibleSpace: Container(
-          decoration: const BoxDecoration(
-            gradient: LinearGradient(
-              colors: [
-                Color(0xFFFF6B9D),
-                Color(0xFF4ECDC4),
-              ], // İstediğiniz gradyan
-              begin: Alignment.centerLeft,
-              end: Alignment.centerRight,
-            ),
-          ),
-        ),
-
-        // --- Orijinal AppBar içeriğiniz ---
-        // Geri butonu. Rengini gradyan üzerinde iyi görünmesi için beyaz yapıyoruz.
         leading: IconButton(
-          icon: const Icon(
-            Icons.arrow_back_ios,
-            color: Colors.white, // Değişiklik: Renk beyaz yapıldı
-          ),
+          icon: const Icon(Icons.arrow_back_ios, color: Colors.white),
           onPressed: () => Navigator.of(context).pop(),
         ),
-
-        // Başlık. Rengini yine beyaz yapıyoruz.
         title: Text(
-          event['title'] ?? 'Event Detail',
-          style: theme.textTheme.headlineSmall?.copyWith(
+          'Event Detail',
+          style: textTheme.titleLarge?.copyWith(
             fontWeight: FontWeight.bold,
-            color: Colors.white, // Değişiklik: Renk beyaz yapıldı
+            color: Colors.white,
           ),
         ),
-
-        // Başlığı ortalama özelliği aynı kalıyor.
         centerTitle: true,
       ),
+
+      // Sayfa Gövdesi
       body: SingleChildScrollView(
-        child: Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // Event image
-              ClipRRect(
-                borderRadius: BorderRadius.circular(16),
-                child: Image.network(
-                  event['image'],
-                  fit: BoxFit.cover,
-                  errorBuilder: (context, error, stackTrace) {
-                    return Container(
-                      height: 200,
+        padding: EdgeInsets.zero,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // Resim ve Başlık Bölümü (Gradyanlı Arka Plan)
+            _buildHeaderSection(context, event, textTheme),
+
+            // İçerik Bölümü (Detaylar, Etiketler vb.)
+            Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const SizedBox(height: 16),
+
+                  // Etiketler (Tags)
+                  if (event.tags.isNotEmpty)
+                    Wrap(
+                      spacing: 8.0,
+                      runSpacing: 4.0,
+                      children: event.tags
+                          .map((tag) => Chip(
+                                label: Text(tag),
+                                backgroundColor: colorScheme.primaryContainer
+                                    .withOpacity(0.5),
+                                labelStyle: textTheme.bodyMedium?.copyWith(
+                                  color: colorScheme.onPrimaryContainer,
+                                ),
+                              ))
+                          .toList(),
+                    ),
+                  if (event.tags.isNotEmpty) const SizedBox(height: 24),
+
+                  // Açıklama
+                  Text(
+                    'About this event',
+                    style: textTheme.titleLarge
+                        ?.copyWith(fontWeight: FontWeight.bold),
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    event.description,
+                    style: textTheme.bodyLarge?.copyWith(
+                      color: colorScheme.onBackground.withOpacity(0.7),
+                      height: 1.5,
+                    ),
+                  ),
+                  const SizedBox(height: 24),
+
+                  // Bilgi Kutusu (Tarih, Saat, Lokasyon, Organizatör)
+                  _buildInfoBox(context, formattedDate, formattedTime, event,
+                      colorScheme),
+
+                  // Buton ile içerik arasına boşluk bırakmak için
+                  const SizedBox(
+                      height: 100), // Butonun içeriğin üzerine gelmemesi için
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+
+      // --- EKLENEN KISIM: EKRANIN ALTINA SABİTLENMİŞ BUTON ---
+      bottomNavigationBar: Padding(
+        // Kenar boşlukları ile butonu daha estetik hale getiriyoruz
+        padding: const EdgeInsets.fromLTRB(16, 8, 16, 24),
+        child: _buildGradientButton(context),
+      ),
+    );
+  }
+
+  // --- Yardımcı Widget'lar ---
+
+  Widget _buildHeaderSection(
+      BuildContext context, Event event, TextTheme textTheme) {
+    return Container(
+      height: 300,
+      decoration: const BoxDecoration(
+        gradient: LinearGradient(
+          colors: [Color(0xFFFF6B9D), Color(0xFF4ECDC4)],
+          begin: Alignment.centerLeft,
+          end: Alignment.centerRight,
+        ),
+      ),
+      child: Stack(
+        children: [
+          Positioned.fill(
+            child: Opacity(
+              opacity: 0.3,
+              child: Image.network(
+                event.image,
+                fit: BoxFit.cover,
+                errorBuilder: (context, error, stackTrace) =>
+                    const SizedBox.shrink(),
+              ),
+            ),
+          ),
+          Center(
+            child: Padding(
+              padding:
+                  const EdgeInsets.fromLTRB(16, kToolbarHeight + 16, 16, 16),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  ClipRRect(
+                    borderRadius: BorderRadius.circular(16),
+                    child: Image.network(
+                      event.image,
+                      height: 150,
                       width: double.infinity,
-                      color: Colors.grey[300],
-                      child: Icon(
-                        Icons.image_not_supported,
-                        color: Colors.grey[600],
-                      ),
-                    );
-                  },
-                ),
-              ),
-              const SizedBox(height: 16),
-              // Tags
-              if (event['tags'] != null)
-                Wrap(
-                  spacing: 8.0,
-                  runSpacing: 4.0,
-                  children: (event['tags'] as List<dynamic>)
-                      .map(
-                        (tag) => Chip(
-                          label: Text(tag.toString()),
-                          backgroundColor: theme.colorScheme.surface,
-                          labelStyle: theme.textTheme.bodyMedium,
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 8,
-                            vertical: 4,
-                          ),
-                        ),
-                      )
-                      .toList(),
-                ),
-              const SizedBox(height: 16),
-              // Organizer Info
-              _buildInfoRow(
-                context,
-                icon: Icons.info_outline,
-                text: event['organizer'] ?? 'Not specified',
-                color: theme.colorScheme.background,
-              ),
-              const SizedBox(height: 16),
-              // Title and Subtitle
-              Text(
-                event['title'],
-                style: theme.textTheme.headlineSmall?.copyWith(
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-              const SizedBox(height: 8),
-              Text(
-                event['subtitle'],
-                style: theme.textTheme.titleMedium?.copyWith(
-                  color: theme.colorScheme.onBackground.withOpacity(0.8),
-                ),
-              ),
-              const SizedBox(height: 24),
-              // Details Box
-              Container(
-                padding: const EdgeInsets.all(16.0),
-                decoration: BoxDecoration(
-                  // We'll use the same consistent color here
-                  color: customBackgroundColor,
-                  borderRadius: BorderRadius.circular(16),
-                  boxShadow: [
-                    BoxShadow(
-                      // Make the shadow more subtle
-                      color: Colors.grey.withOpacity(0.3),
-                      spreadRadius: 1,
-                      blurRadius: 5,
-                      offset: const Offset(0, 2),
-                    ),
-                  ],
-                ),
-                child: Column(
-                  children: [
-                    _buildInfoRow(
-                      context,
-                      icon: Icons.location_on_outlined,
-                      text: event['location'] ?? 'Location not specified',
-                    ),
-                    const Divider(height: 24),
-                    _buildInfoRow(
-                      context,
-                      icon: Icons.calendar_today_outlined,
-                      text: '${event['date'] ?? ''}  ${event['time'] ?? ''}',
-                    ),
-                  ],
-                ),
-              ),
-              const SizedBox(height: 32),
-              // Apply Button
-              SizedBox(
-                width: double.infinity,
-                child: ElevatedButton(
-                  // onPressed fonksiyonunu koruyoruz
-                  onPressed: () {},
-                  style: ElevatedButton.styleFrom(
-                    // Butonun kendisini şeffaf yapıyoruz
-                    backgroundColor: Colors.transparent,
-                    shadowColor: Colors.transparent,
-                    padding: EdgeInsets
-                        .zero, // İç boşluğu sıfırlıyoruz ki Ink tam otursun
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(
-                        25,
-                      ), // Hedef stildeki yuvarlaklık
-                    ),
-                  ),
-                  child: Ink(
-                    decoration: BoxDecoration(
-                      // Hedef stildeki gradyanı uyguluyoruz
-                      gradient: LinearGradient(
-                        colors: [Color(0xFFFF6B9D), Color(0xFF4ECDC4)],
-                        begin: Alignment.centerLeft,
-                        end: Alignment.centerRight,
-                      ),
-                      borderRadius: BorderRadius.circular(
-                        25,
-                      ), // Dekorasyonun da yuvarlak olması lazım
-                    ),
-                    child: Container(
-                      width: double
-                          .infinity, // Butonun tam genişlikte olmasını sağlar
-                      padding: const EdgeInsets.symmetric(
-                        vertical: 16,
-                      ), // Yüksekliği ayarlamak için padding (orijinal butona benzer)
-                      child: Row(
-                        // İkon ve yazıyı ortalamak için
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          // Orijinal butondaki ikon
-                          const Icon(
-                            Icons.arrow_forward,
-                            color: Colors
-                                .white, // Gradyan üzerinde görünmesi için rengi beyaz yapıyoruz
-                          ),
-                          const SizedBox(
-                            width: 10,
-                          ), // İkon ile yazı arasına boşluk
-                          // Orijinal butondaki yazı
-                          const Text(
-                            "Apply",
-                            // Hedef stildeki yazı stiline benzetiyoruz
-                            style: TextStyle(
-                              color: Colors.white,
-                              fontSize: 18,
-                              fontWeight: FontWeight.w600,
-                            ),
-                          ),
-                        ],
+                      fit: BoxFit.cover,
+                      errorBuilder: (context, error, stackTrace) => Container(
+                        height: 150,
+                        decoration: BoxDecoration(
+                            color: Colors.white.withOpacity(0.2),
+                            borderRadius: BorderRadius.circular(16)),
+                        child: Icon(Icons.image_not_supported,
+                            color: Colors.white.withOpacity(0.7), size: 50),
                       ),
                     ),
                   ),
-                ),
+                  const SizedBox(height: 12),
+                  Text(
+                    event.title,
+                    style: textTheme.headlineSmall?.copyWith(
+                        color: Colors.white,
+                        fontWeight: FontWeight.bold,
+                        shadows: [
+                          Shadow(
+                              blurRadius: 5.0,
+                              color: Colors.black.withOpacity(0.5))
+                        ]),
+                    textAlign: TextAlign.center,
+                  ),
+                ],
               ),
-            ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildInfoBox(BuildContext context, String formattedDate,
+      String formattedTime, Event event, ColorScheme colorScheme) {
+    return Container(
+      padding: const EdgeInsets.all(16.0),
+      decoration: BoxDecoration(
+        color: colorScheme.surfaceVariant.withOpacity(0.5),
+        borderRadius: BorderRadius.circular(16),
+      ),
+      child: Column(
+        children: [
+          _buildInfoRow(context,
+              icon: Icons.calendar_today_outlined, text: formattedDate),
+          const Divider(height: 24),
+          _buildInfoRow(context,
+              icon: Icons.access_time_outlined, text: formattedTime),
+          const Divider(height: 24),
+          _buildInfoRow(context,
+              icon: Icons.location_on_outlined, text: event.location),
+          const Divider(height: 24),
+          _buildInfoRow(context,
+              icon: Icons.person_outline,
+              text: "by ${event.organizerUsername}"),
+          if (event.capacity > 0) ...[
+            const Divider(height: 24),
+            _buildInfoRow(
+              context,
+              icon: Icons.people_outline,
+              text: '${event.bookingCounts} / ${event.capacity} Booked',
+            ),
+          ],
+        ],
+      ),
+    );
+  }
+
+  Widget _buildGradientButton(BuildContext context) {
+    return ElevatedButton(
+      onPressed: () {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Booking for ${event.title}...')),
+        );
+      },
+      style: ElevatedButton.styleFrom(
+          padding: EdgeInsets.zero,
+          shape:
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(25)),
+          elevation: 5,
+          shadowColor: const Color(0xFFFF6B9D).withOpacity(0.5)),
+      child: Ink(
+        decoration: BoxDecoration(
+          gradient: const LinearGradient(
+            colors: [Color(0xFFFF6B9D), Color(0xFF4ECDC4)],
+            begin: Alignment.centerLeft,
+            end: Alignment.centerRight,
+          ),
+          borderRadius: BorderRadius.circular(25),
+        ),
+        child: Container(
+          padding: const EdgeInsets.symmetric(vertical: 16),
+          alignment: Alignment.center,
+          child: const Text(
+            "Book Now",
+            style: TextStyle(
+              color: Colors.white,
+              fontSize: 18,
+              fontWeight: FontWeight.bold,
+            ),
           ),
         ),
       ),
@@ -234,22 +266,43 @@ class EventDetailPage extends StatelessWidget {
     BuildContext context, {
     required IconData icon,
     required String text,
-    Color? color,
   }) {
     final theme = Theme.of(context);
     return Row(
       children: [
-        Icon(icon, size: 20, color: color ?? theme.colorScheme.onBackground),
-        const SizedBox(width: 12),
+        Icon(icon, size: 22, color: theme.colorScheme.primary),
+        const SizedBox(width: 16),
         Expanded(
           child: Text(
             text,
             style: theme.textTheme.bodyLarge?.copyWith(
-              color: color ?? theme.colorScheme.onBackground,
+              color: theme.colorScheme.onSurfaceVariant,
             ),
           ),
         ),
       ],
     );
+  }
+
+  // --- Yardımcı Fonksiyonlar ---
+  String _formatDate(String dateString) {
+    try {
+      final date = DateTime.parse(dateString);
+      return DateFormat('d MMMM yyyy').format(date);
+    } catch (e) {
+      return dateString;
+    }
+  }
+
+  String _formatTime(BuildContext context, String timeString) {
+    try {
+      final time = TimeOfDay(
+        hour: int.parse(timeString.split(':')[0]),
+        minute: int.parse(timeString.split(':')[1]),
+      );
+      return time.format(context);
+    } catch (e) {
+      return timeString.length > 5 ? timeString.substring(0, 5) : timeString;
+    }
   }
 }

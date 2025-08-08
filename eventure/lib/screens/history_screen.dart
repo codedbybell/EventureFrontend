@@ -370,6 +370,8 @@ class _CalendarHeaderState extends State<_CalendarHeader> {
 
   @override
   Widget build(BuildContext context) {
+    final screenHeight = MediaQuery.of(context).size.height;
+
     return Padding(
       padding: const EdgeInsets.fromLTRB(20, 20, 20, 20),
       child: Column(
@@ -389,7 +391,7 @@ class _CalendarHeaderState extends State<_CalendarHeader> {
                   _isExpanded
                       ? Icons.keyboard_arrow_up
                       : Icons.keyboard_arrow_down,
-                  color: Colors.grey[700],
+                  color: Theme.of(context).colorScheme.onSurface,
                 ),
                 onPressed: _toggleCalendarView,
               ),
@@ -399,7 +401,7 @@ class _CalendarHeaderState extends State<_CalendarHeader> {
           AnimatedContainer(
             duration: const Duration(milliseconds: 300),
             curve: Curves.easeInOut,
-            height: _isExpanded ? 240 : 85,
+            height: _isExpanded ? screenHeight * 0.35 : screenHeight * 0.12,
             child: _isExpanded
                 ? _buildCalendarGrid(_datesForCurrentMonth)
                 : _buildWeeklyCalendar(),
@@ -423,7 +425,7 @@ class _CalendarHeaderState extends State<_CalendarHeader> {
                         day,
                         style: TextStyle(
                           fontSize: 14,
-                          color: Colors.grey[500],
+                          color: Theme.of(context).colorScheme.onSurface,
                           fontWeight: FontWeight.w500,
                         ),
                       ),
@@ -525,7 +527,9 @@ class _DateWidget extends StatelessWidget {
               style: TextStyle(
                 fontSize: 16,
                 fontWeight: FontWeight.bold,
-                color: isSelected ? Colors.white : Colors.black,
+                color: isSelected
+                    ? Colors.white
+                    : Theme.of(context).colorScheme.onSurface,
               ),
             ),
             const SizedBox(height: 4),
@@ -594,7 +598,7 @@ class _EventCard extends StatelessWidget {
                       event.description,
                       style: TextStyle(
                         fontSize: 14,
-                        color: Colors.grey[700],
+                        color: Theme.of(context).colorScheme.onSurface,
                         height: 1.4,
                       ),
                     ),
@@ -633,7 +637,7 @@ class _InfoRow extends StatelessWidget {
   final IconData icon;
   final String text;
   const _InfoRow({Key? key, required this.icon, required this.text})
-    : super(key: key);
+      : super(key: key);
   @override
   Widget build(BuildContext context) {
     return Row(
@@ -645,7 +649,7 @@ class _InfoRow extends StatelessWidget {
           style: TextStyle(
             fontSize: 14,
             fontWeight: FontWeight.w500,
-            color: Colors.grey[800],
+            color: Theme.of(context).colorScheme.onSurface,
           ),
         ),
       ],

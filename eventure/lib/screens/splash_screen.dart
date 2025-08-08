@@ -1,52 +1,59 @@
-import 'dart:async';
-import 'package:eventure/screens/history_screen.dart';
-import 'package:eventure/screens/login_screen.dart';
+// lib/screens/splash_screen.dart
 
 import 'package:flutter/material.dart';
-// home_page.dart dosyasını doğru şekilde import ediyoruz.
-import 'package:eventure/screens/home_page.dart';
-import 'package:eventure/theme/theme.dart' as AppTheme;
-// login_screen.dart'a artık ihtiyacımız olmadığı için bu satırı silebilirsiniz.
-// import 'package:eventure/screens/login_screen.dart';
+import 'dart:async';
+import '../services/token_service.dart'; // Token servisimizi import ediyoruz
 
 class SplashScreen extends StatefulWidget {
-  const SplashScreen({super.key});
+  const SplashScreen({Key? key}) : super(key: key);
 
   @override
-  State<SplashScreen> createState() => _SplashScreenState();
+  _SplashScreenState createState() => _SplashScreenState();
 }
 
 class _SplashScreenState extends State<SplashScreen> {
+  final TokenService _tokenService = TokenService();
+
   @override
   void initState() {
     super.initState();
+    _checkAuthAndNavigate();
+  }
 
-    // 2 saniye sonra AnaEkran'a geç
-    Timer(const Duration(seconds: 2), () {
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(
-          // HATA BURADAYDI: HomePage() yerine EcommerceHomePage() kullanıyoruz.
-          builder: (context) => const EcommerceHomePage(),
-        ),
-      );
-    });
+  /// Cihazda kayıtlı bir token olup olmadığını kontrol eder ve yönlendirme yapar.
+  Future<void> _checkAuthAndNavigate() async {
+    // Kısa bir bekleme süresi ekleyerek splash screen'in aniden kaybolmasını önleyebiliriz.
+    await Future.delayed(const Duration(seconds: 2));
+
+    // Cihazdan access token'ı okumayı deniyoruz.
+    final String? accessToken = await _tokenService.getAccessToken();
+
+    // Widget'ın hala ekranda olduğundan emin oluyoruz.
+    // (Asenkron işlem sonrası widget ağacından kaldırılmış olabilir)
+    if (!mounted) return;
+
+    // Token varsa ana sayfaya, yoksa giriş ekranına yönlendir.
+    if (accessToken != null) {
+      // pushReplacementNamed kullanarak splash screen'i yığından kaldırıyoruz,
+      // böylece kullanıcı geri tuşuyla bu ekrana dönemez.
+      Navigator.pushReplacementNamed(context, '/home');
+    } else {
+      Navigator.pushReplacementNamed(context, '/login');
+    }
   }
 
   @override
   Widget build(BuildContext context) {
+    // Kontrol işlemi sırasında ekranda logonuzu veya bir yüklenme animasyonu gösterebilirsiniz.
     return Scaffold(
-      backgroundColor: const Color.fromARGB(255, 255, 226, 203),
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
+            // Logonuzun `assets/logo.png` yolunda olduğundan emin olun.
+            Image.asset('assets/logo.png', height: 350),
             const SizedBox(height: 20),
-            Image.asset('assets/logo.png', height: 500),
-            const SizedBox(height: 20),
-            const CircularProgressIndicator(
-              valueColor: AlwaysStoppedAnimation<Color>(AppTheme.salmonPalette),
-            ),
+            const CircularProgressIndicator(), // Yükleniyor animasyonu
           ],
         ),
       ),

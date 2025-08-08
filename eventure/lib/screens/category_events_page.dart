@@ -1,92 +1,125 @@
-// lib/screens/category_events_page.dart (YENİ DOSYA)
-
-import 'package:eventure/screens/event_detail_page.dart';
 import 'package:flutter/material.dart';
-import 'package:eventure/screens/home_page.dart'; // `allEvents` listesine erişmek için import ediyoruz
+import 'package:intl/intl.dart'; // Tarih formatlama için
+import '../models/event_model.dart';
+import '../services/event_services.dart';
+import 'event_detail_page.dart';
 
-class CategoryEventsPage extends StatelessWidget {
+class CategoryEventsPage extends StatefulWidget {
   final String categoryName;
 
   const CategoryEventsPage({super.key, required this.categoryName});
 
   @override
-  Widget build(BuildContext context) {
-    // Ana 'allEvents' listesinden bu kategoriye ait olanları filtrele
-    final List<Map<String, dynamic>> filteredEvents = allEvents
-        .where((event) => event['category'] == categoryName)
-        .toList();
+  State<CategoryEventsPage> createState() => _CategoryEventsPageState();
+}
 
+class _CategoryEventsPageState extends State<CategoryEventsPage> {
+  // API'den gelecek veriyi tutacak Future nesnesi
+  late Future<List<Event>> _categoryEventsFuture;
+
+  @override
+  void initState() {
+    super.initState();
+    // Sayfa ilk açıldığında ilgili kategoriye ait etkinlikleri çek
+    _categoryEventsFuture = EventService().fetchEventsByCategory(
+      widget.categoryName,
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
     return Scaffold(
+      // --- AppBar (Gradyanlı Tasarım) ---
       appBar: AppBar(
-        // 1. Arka planı şeffaf yapıp gölgeyi kaldırıyoruz.
+        // Arka planı şeffaf yapıp gölgeyi kaldırıyoruz
         backgroundColor: Colors.transparent,
         elevation: 0,
 
-        // 2. 'flexibleSpace' ile gradyan arka planı ekliyoruz.
+        // Geri butonunun rengi gradyan üzerinde okunması için beyaz yapıldı
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back_ios, color: Colors.white),
+          onPressed: () => Navigator.of(context).pop(),
+        ),
+
+        // Başlık olarak kategori adını kullanıp rengini beyaz yapıyoruz
+        title: Text(
+          widget.categoryName,
+          style: const TextStyle(
+            color: Colors.white,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+        centerTitle: true,
+
+        // 'flexibleSpace' ile gradyan arka planı ekliyoruz
         flexibleSpace: Container(
           decoration: const BoxDecoration(
             gradient: LinearGradient(
-              colors: [
-                Color(0xFFFF6B9D), // Pembe tonu
-                Color(0xFF4ECDC4), // Turkuaz tonu
-              ],
+              colors: [Color(0xFFFF6B9D), Color(0xFF4ECDC4)],
               begin: Alignment.centerLeft,
               end: Alignment.centerRight,
             ),
           ),
         ),
-
-        // --- Orijinal AppBar içeriğiniz gradyan stile uyarlandı ---
-
-        // 3. Geri butonunun rengi gradyan üzerinde okunması için beyaz yapıldı.
-        // Not: Orijinal kodunuzda açıkça bir geri butonu yoktu, ancak bu stil için
-        // eklenmesi yaygın bir uygulamadır. İstemiyorsanız bu 'leading' kısmını silebilirsiniz.
-        leading: IconButton(
-          onPressed: () {
-            // Bir önceki sayfaya döner.
-            Navigator.of(context).pop();
-          },
-          icon: const Icon(Icons.arrow_back_ios, color: Colors.white),
-        ),
-
-        // 4. Başlık olarak 'categoryName' değişkenini kullanıp rengini beyaz yapıyoruz.
-        title: Text(
-          categoryName, // Orijinal kodunuzdaki değişken burada kullanıldı.
-          style: const TextStyle(
-            color: Colors.white, // Stil uyarlaması: Renk beyaz yapıldı.
-          ),
-        ),
-
-        // Başlığı ortalamak estetik olarak daha iyi duracaktır.
-        centerTitle: true,
-
-        // Kendi 'leading' widget'ımızı eklediğimiz için Flutter'ın
-        // otomatik olarak bir tane eklemesini engelliyoruz.
-        automaticallyImplyLeading: false,
       ),
-      body: filteredEvents.isEmpty
-          ? const Center(
-              child: Text(
-                'No events found in this category.',
-                style: TextStyle(fontSize: 16),
+
+      // --- Sayfa Gövdesi ---
+      body: FutureBuilder<List<Event>>(
+        future: _categoryEventsFuture,
+        builder: (context, snapshot) {
+          // 1. Veri yüklenirken
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return const Center(child: CircularProgressIndicator());
+          }
+          // 2. Hata durumunda
+          else if (snapshot.hasError) {
+            return Center(
+              child: Padding(
+                padding: const EdgeInsets.all(24.0),
+                child: Text(
+                  'Etkinlikler yüklenemedi.\nLütfen internet bağlantınızı kontrol edip tekrar deneyin.',
+                  textAlign: TextAlign.center,
+                  style: Theme.of(context).textTheme.titleMedium,
+                ),
               ),
-            )
-          : ListView.builder(
-              padding: const EdgeInsets.all(12.0),
+            );
+          }
+          // 3. Veri yoksa veya boşsa
+          else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+            return Center(
+              child: Text(
+                'Bu kategoride henüz etkinlik bulunmuyor.',
+                style: Theme.of(context).textTheme.titleMedium,
+              ),
+            );
+          }
+          // 4. Veri başarıyla geldiyse
+          else {
+            final filteredEvents = snapshot.data!;
+            return ListView.builder(
+              padding: const EdgeInsets.all(16.0),
               itemCount: filteredEvents.length,
               itemBuilder: (context, index) {
                 final event = filteredEvents[index];
                 return _buildEventPreviewCard(context, event);
               },
-            ),
+            );
+          }
+        },
+      ),
     );
   }
 
-  // Etkinlik önizleme kartını oluşturan widget
-  Widget _buildEventPreviewCard(
-    BuildContext context,
-    Map<String, dynamic> event,
-  ) {
+  // Etkinlik önizleme kartını oluşturan yardımcı widget
+  Widget _buildEventPreviewCard(BuildContext context, Event event) {
+    String formattedDate = '';
+    try {
+      final date = DateTime.parse(event.date);
+      formattedDate = DateFormat('d MMMM yyyy').format(date);
+    } catch (e) {
+      formattedDate = event.date;
+    }
+
     return GestureDetector(
       onTap: () {
         Navigator.push(
@@ -98,30 +131,25 @@ class CategoryEventsPage extends StatelessWidget {
       },
       child: Card(
         margin: const EdgeInsets.only(bottom: 16.0),
-        clipBehavior:
-            Clip.antiAlias, // Resmin kartın köşelerinden taşmasını engeller
+        clipBehavior: Clip.antiAlias,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-        elevation: 3,
+        elevation: 4,
+        shadowColor: Colors.black.withOpacity(0.1),
         child: Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             // Resim
             Image.network(
-              event['image'],
-              width: 120,
-              height: 120,
+              event.image,
+              width: 110,
+              height: 110,
               fit: BoxFit.cover,
-              errorBuilder: (context, error, stackTrace) {
-                return Container(
-                  width: 120,
-                  height: 120,
-                  color: Colors.grey[300],
-                  child: Icon(
-                    Icons.image_not_supported,
-                    color: Colors.grey[600],
-                  ),
-                );
-              },
+              errorBuilder: (context, error, stackTrace) => Container(
+                width: 110,
+                height: 110,
+                color: Colors.grey.shade200,
+                child: Icon(Icons.image_not_supported,
+                    color: Colors.grey.shade400),
+              ),
             ),
             // Detaylar
             Expanded(
@@ -129,12 +157,13 @@ class CategoryEventsPage extends StatelessWidget {
                 padding: const EdgeInsets.all(12.0),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     Text(
-                      event['title'],
+                      event.title,
                       style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                        fontWeight: FontWeight.bold,
-                      ),
+                            fontWeight: FontWeight.bold,
+                          ),
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,
                     ),
@@ -142,13 +171,13 @@ class CategoryEventsPage extends StatelessWidget {
                     _buildInfoRow(
                       context,
                       Icons.calendar_today_outlined,
-                      event['date'],
+                      formattedDate, // Formatlanmış tarihi kullan
                     ),
                     const SizedBox(height: 6),
                     _buildInfoRow(
                       context,
                       Icons.location_on_outlined,
-                      event['location'],
+                      event.location,
                     ),
                   ],
                 ),
@@ -160,6 +189,7 @@ class CategoryEventsPage extends StatelessWidget {
     );
   }
 
+  // Bilgi satırlarını oluşturan yardımcı widget (Değişiklik yok)
   Widget _buildInfoRow(BuildContext context, IconData icon, String text) {
     return Row(
       children: [
