@@ -1,169 +1,15 @@
-// lib/screens/home_page.dart (İSTEKLERİNİZ EKLENMİŞ GÜNCEL HALİ)
-
 import 'dart:async';
 import 'package:flutter/material.dart';
 
-// İSTEDİĞİNİZ YENİ SAYFALAR İÇİN IMPORT'LAR EKLENDİ
 import 'package:eventure/screens/all_categories_page.dart';
 import 'package:eventure/screens/all_popular_events_page.dart';
-
 import 'package:eventure/screens/category_events_page.dart';
 import 'package:eventure/screens/event_detail_page.dart';
 import 'package:eventure/screens/history_screen.dart';
 import 'package:eventure/screens/profil_edit_screen.dart';
-
-// --- Veri Modelleri (Değişiklik yok) ---
-final List<Map<String, dynamic>> allEvents = [
-  // ... (Veri listesi olduğu gibi kalacak)
-  {
-    'image':
-        'https://upload.wikimedia.org/wikipedia/en/7/79/Music_of_the_Spheres_World_Tour_Poster.png',
-    'title': 'Coldplay Concert',
-    'subtitle': 'Music of the Spheres World Tour',
-    'location': 'Olympic Stadium, Athens',
-    'date': 'June 8-9, 2024',
-    'time': '08:00 PM - 11:00 PM',
-    'tags': ['Music', 'Pop', 'World Tour'],
-    'organizer': 'Live Nation',
-    'category': 'Concerts',
-  },
-  {
-    'image':
-        'https://i.milliyet.com.tr/MilliyetSanat640x412/2019/02/26/fft243_mf32581301.Jpeg',
-    'title': 'Summer Fest',
-    'subtitle': 'The hottest festival of the year',
-    'location': 'Life Park, Istanbul',
-    'date': 'Aug 15-17, 2025',
-    'time': '04:00 PM - 02:00 AM',
-    'tags': ['Music', 'Festival', 'Summer'],
-    'organizer': 'Eventure Org.',
-    'category': 'Concerts',
-  },
-  {
-    'image':
-        'https://ce.yildiz.edu.tr:8080/news-images/62bc056f2cf4630012f603d0/teknofest2025-d22ec2cc-2612-4c47-897e-7d5024233431.jpg',
-    'title': 'Teknofest',
-    'subtitle': 'National Technology Initiative',
-    'location': 'Ataturk Airport, Istanbul',
-    'date': 'Apr 27 - May 1, 2025',
-    'time': '10:00 AM - 06:00 PM',
-    'tags': ['Technology', 'Festival', 'Aviation', 'Free'],
-    'organizer': 'T3 Foundation',
-    'category': 'Conferences',
-  },
-  {
-    'image':
-        'https://images.unsplash.com/photo-1505236858219-8359eb29e329?w=800',
-    'title': 'Indie Night',
-    'subtitle': 'Independent voices on stage',
-    'location': 'Zorlu PSM, Istanbul',
-    'date': 'Sep 25, 2025',
-    'time': '09:00 PM - 12:00 AM',
-    'tags': ['Music', 'Indie', 'Concert'],
-    'organizer': 'PSM Music',
-    'category': 'Concerts',
-  },
-  {
-    'image': 'https://istanbulfestivali.com/home_concerts_2025.jpg',
-    'title': 'Istanbul Festival',
-    'subtitle': 'The rhythm of the city is here',
-    'location': 'Festival Park, Yenikapi',
-    'date': 'Aug 6-17, 2025',
-    'time': '05:00 PM - 12:00 AM',
-    'tags': ['Music', 'Festival', 'Istanbul'],
-    'organizer': 'Ministry of Culture and Tourism',
-    'category': 'Concerts',
-  },
-  {
-    'image': 'https://iksv.org/i/content/21854_1_fm1366.jpg',
-    'title': 'Filmekimi',
-    'subtitle': 'The best films of autumn',
-    'location': 'Atlas 1948 & Kadikoy Cinema',
-    'date': 'Oct 4-13, 2025',
-    'time': '11:00 AM - 11:30 PM',
-    'tags': ['Cinema', 'Festival', 'Art'],
-    'organizer': 'IKSV',
-    'category': 'Cinema',
-  },
-  {
-    'image':
-        'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRLa-aGhiXWoqCrWCmFKZvODoURZBjU1ageLA&s',
-    'title': 'Zeytinli Rock Fest',
-    'subtitle': 'Turkey\'s biggest rock festival',
-    'location': 'Burhaniye, Balikesir',
-    'date': 'Sep 2-6, 2025',
-    'time': '03:00 PM - 03:00 AM',
-    'tags': ['Music', 'Rock', 'Festival'],
-    'organizer': 'Milyon Production',
-    'category': 'Concerts',
-  },
-  {
-    'image':
-        'https://images.unsplash.com/photo-1511578314322-379afb476865?w=800',
-    'title': 'Jazz Nights',
-    'subtitle': 'The magical notes of jazz',
-    'location': 'Nardis Jazz Club, Galata',
-    'date': 'Every Friday',
-    'time': '09:30 PM - 12:00 AM',
-    'tags': ['Music', 'Jazz', 'Live'],
-    'organizer': 'Nardis',
-    'category': 'Concerts',
-  },
-  {
-    'image':
-        'https://s1.wklcdn.com/image_165/4952886/68860315/45329743Master.jpg',
-    'title': 'Hiking Adventure',
-    'subtitle': 'Explore the Belgrad Forest',
-    'location': 'Belgrad Forest, Istanbul',
-    'date': 'Every Weekend',
-    'time': '09:00 AM - 04:00 PM',
-    'tags': ['Nature', 'Hiking', 'Outdoor'],
-    'organizer': 'Nature Lovers Club',
-    'category': 'Nature',
-  },
-];
-final List<Map<String, dynamic>> upcomingEvents = allEvents
-    .where(
-      (e) => [
-        'Coldplay Concert',
-        'Summer Fest',
-        'Teknofest',
-        'Indie Night',
-      ].contains(e['title']),
-    )
-    .toList();
-final List<Map<String, dynamic>> popularEvents = allEvents
-    .where(
-      (e) => [
-        'Istanbul Festival',
-        'Filmekimi',
-        'Zeytinli Rock Fest',
-        'Jazz Nights',
-      ].contains(e['title']),
-    )
-    .toList();
-final List<Map<String, String>> eventCategories = [
-  {
-    'image':
-        'https://images.unsplash.com/photo-1524368535928-5b5e00ddc76b?w=800&auto=format&fit=crop',
-    'label': 'Concerts',
-  },
-  {
-    'image':
-        'https://images.unsplash.com/photo-1574267432553-4b4628081c31?w=800&auto=format&fit=crop',
-    'label': 'Cinema',
-  },
-  {
-    'image':
-        'https://images.unsplash.com/photo-1501555088652-021faa106b9b?w=800&auto=format&fit=crop',
-    'label': 'Nature',
-  },
-  {
-    'image':
-        'https://images.unsplash.com/photo-1543269865-cbf427effbad?w=800&auto=format&fit=crop',
-    'label': 'Conferences',
-  },
-];
+import '../models/event_model.dart';
+import '../services/event_services.dart';
+import '../models/category_model.dart';
 
 // --- Ana Sayfa Widget'ı ---
 class EcommerceHomePage extends StatefulWidget {
@@ -173,30 +19,44 @@ class EcommerceHomePage extends StatefulWidget {
 }
 
 class _EcommerceHomePageState extends State<EcommerceHomePage> {
-  // --- State Değişkenleri (Değişiklik yok) ---
+  // --- State Değişkenleri ---
   int _currentBottomNavIndex = 0;
   final PageController _pageController = PageController();
   int _currentBannerPage = 0;
   Timer? _timer;
   final TextEditingController _searchController = TextEditingController();
   String _searchQuery = '';
+  List<Event> _allFetchedEvents = [];
   List<Map<String, dynamic>> _searchResults = [];
 
-  // --- Lifecycle Metotları (Değişiklik yok) ---
+  // --- Future Değişkenleri (API'den veri beklemek için) ---
+  late Future<List<Event>> _futureEvents;
+  late Future<List<Event>> _futurePopularEvents;
+  late Future<List<Category>> _categoriesFuture;
+
   @override
   void initState() {
     super.initState();
+
+    // Servis çağrılarını başlatıyoruz
+    final eventService = EventService();
+    _futureEvents = eventService.fetchEvents();
+    _futurePopularEvents = eventService.fetchPopularEvents();
+    _categoriesFuture = eventService.fetchCategories();
+
+    // Banner zamanlayıcısını başlatıyoruz (güvenli ve dinamik)
     _timer = Timer.periodic(const Duration(seconds: 5), (Timer timer) {
-      if (!mounted) return;
-      int newPage = (_currentBannerPage + 1) % upcomingEvents.length;
-      if (_pageController.hasClients) {
-        _pageController.animateToPage(
-          newPage,
-          duration: const Duration(milliseconds: 400),
-          curve: Curves.easeIn,
-        );
-      }
+      if (!mounted || !_pageController.hasClients || _allFetchedEvents.isEmpty)
+        return;
+      int newPage = (_currentBannerPage + 1) % _allFetchedEvents.length;
+      _pageController.animateToPage(
+        newPage,
+        duration: const Duration(milliseconds: 400),
+        curve: Curves.easeIn,
+      );
     });
+
+    // Arama kutusu dinleyicisi
     _searchController.addListener(() {
       if (_searchController.text.isEmpty && _searchQuery.isNotEmpty) {
         _updateSearchResults('');
@@ -212,7 +72,7 @@ class _EcommerceHomePageState extends State<EcommerceHomePage> {
     super.dispose();
   }
 
-  // --- Fonksiyonlar ve Metotlar (YENİ METOTLAR EKLENDİ) ---
+  // --- Fonksiyonlar ve Metotlar ---
   void _updateSearchResults(String query) {
     setState(() {
       _searchQuery = query;
@@ -220,16 +80,20 @@ class _EcommerceHomePageState extends State<EcommerceHomePage> {
         _searchResults = [];
       } else {
         final lowerCaseQuery = query.toLowerCase();
-        _searchResults = allEvents.where((event) {
-          final title = event['title'].toString().toLowerCase();
-          final subtitle = event['subtitle'].toString().toLowerCase();
-          final organizer = event['organizer'].toString().toLowerCase();
-          final category = event['category'].toString().toLowerCase();
-          return title.contains(lowerCaseQuery) ||
-              subtitle.contains(lowerCaseQuery) ||
-              organizer.contains(lowerCaseQuery) ||
-              category.contains(lowerCaseQuery);
-        }).toList();
+        _searchResults = _allFetchedEvents
+            .where(
+              (event) =>
+                  event.title.toLowerCase().contains(lowerCaseQuery) ||
+                  event.description.toLowerCase().contains(lowerCaseQuery) ||
+                  event.organizerUsername.toLowerCase().contains(
+                    lowerCaseQuery,
+                  ) ||
+                  event.categoryId.toString().toLowerCase().contains(
+                    lowerCaseQuery,
+                  ),
+            )
+            .map((event) => event.toJson())
+            .toList();
       }
     });
   }
@@ -237,14 +101,13 @@ class _EcommerceHomePageState extends State<EcommerceHomePage> {
   void _clearSearch() {
     FocusScope.of(context).unfocus();
     _searchController.clear();
+    _updateSearchResults('');
   }
 
-  void _navigateToDetail(Map<String, dynamic> eventData) {
+  void _navigateToDetail(Event event) {
     Navigator.push(
       context,
-      MaterialPageRoute(
-        builder: (context) => EventDetailPage(event: eventData),
-      ),
+      MaterialPageRoute(builder: (context) => EventDetailPage(event: event)),
     );
   }
 
@@ -257,7 +120,6 @@ class _EcommerceHomePageState extends State<EcommerceHomePage> {
     );
   }
 
-  // YENİ EKLENDİ: "TÜMÜNÜ GÖR" İÇİN NAVİGASYON FONKSİYONLARI
   void _navigateToAllCategories() {
     Navigator.push(
       context,
@@ -272,7 +134,7 @@ class _EcommerceHomePageState extends State<EcommerceHomePage> {
     );
   }
 
-  // --- Build Metotları (Değişiklik yok) ---
+  // --- Build Metotları ---
   @override
   Widget build(BuildContext context) {
     final List<Widget> pages = [
@@ -292,11 +154,7 @@ class _EcommerceHomePageState extends State<EcommerceHomePage> {
       child: Scaffold(
         bottomNavigationBar: BottomNavigationBar(
           currentIndex: _currentBottomNavIndex,
-          onTap: (index) {
-            setState(() {
-              _currentBottomNavIndex = index;
-            });
-          },
+          onTap: (index) => setState(() => _currentBottomNavIndex = index),
           backgroundColor: Theme.of(context).scaffoldBackgroundColor,
           selectedItemColor: Theme.of(context).colorScheme.onBackground,
           unselectedItemColor: Theme.of(
@@ -337,9 +195,9 @@ class _EcommerceHomePageState extends State<EcommerceHomePage> {
     );
   }
 
-  // _buildHomePageContent GÜNCELLENDİ
   Widget _buildHomePageContent() {
     return SingleChildScrollView(
+      physics: const BouncingScrollPhysics(),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -347,17 +205,15 @@ class _EcommerceHomePageState extends State<EcommerceHomePage> {
           _buildSectionHeader(context, title: "Upcoming Events"),
           _buildUpcomingEventsSlider(context),
           const SizedBox(height: 24),
-          // "onSeeAllTapped" fonksiyonu eklendi
           _buildSectionHeader(
             context,
-            title: "Events",
+            title: "Categories",
             showArrow: true,
             onSeeAllTapped: _navigateToAllCategories,
           ),
           const SizedBox(height: 16),
           _buildEventCategories(context),
           const SizedBox(height: 24),
-          // "onSeeAllTapped" fonksiyonu eklendi
           _buildSectionHeader(
             context,
             title: "Popular Events",
@@ -380,7 +236,8 @@ class _EcommerceHomePageState extends State<EcommerceHomePage> {
       padding: const EdgeInsets.all(12.0),
       itemCount: _searchResults.length,
       itemBuilder: (context, index) {
-        final event = _searchResults[index];
+        // <<< DÜZELTME 5: Arama sonuçları için de Event nesnesi kullan
+        final event = Event.fromJson(_searchResults[index]);
         return _buildEventPreviewCard(context, event);
       },
     );
@@ -402,6 +259,7 @@ class _EcommerceHomePageState extends State<EcommerceHomePage> {
                 )
               : null,
           filled: true,
+          fillColor: Theme.of(context).colorScheme.surfaceVariant,
           border: OutlineInputBorder(
             borderRadius: BorderRadius.circular(12),
             borderSide: BorderSide.none,
@@ -411,21 +269,18 @@ class _EcommerceHomePageState extends State<EcommerceHomePage> {
     );
   }
 
-  Widget _buildEventPreviewCard(
-    BuildContext context,
-    Map<String, dynamic> event,
-  ) {
+  Widget _buildEventPreviewCard(BuildContext context, Event event) {
     return GestureDetector(
       onTap: () => _navigateToDetail(event),
       child: Card(
-        margin: const EdgeInsets.only(bottom: 16.0),
+        margin: const EdgeInsets.only(bottom: 16.0, left: 4, right: 4),
         clipBehavior: Clip.antiAlias,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
         elevation: 3,
         child: Row(
           children: [
             Image.network(
-              event['image'],
+              event.image,
               width: 120,
               height: 120,
               fit: BoxFit.cover,
@@ -444,7 +299,7 @@ class _EcommerceHomePageState extends State<EcommerceHomePage> {
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     Text(
-                      event['title'],
+                      event.title,
                       style: Theme.of(context).textTheme.titleMedium?.copyWith(
                         fontWeight: FontWeight.bold,
                       ),
@@ -453,7 +308,7 @@ class _EcommerceHomePageState extends State<EcommerceHomePage> {
                     ),
                     const SizedBox(height: 8),
                     Text(
-                      event['location'],
+                      event.location,
                       style: Theme.of(context).textTheme.bodySmall,
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
@@ -468,7 +323,6 @@ class _EcommerceHomePageState extends State<EcommerceHomePage> {
     );
   }
 
-  // _buildSectionHeader GÜNCELLENDİ
   Widget _buildSectionHeader(
     BuildContext context, {
     required String title,
@@ -490,157 +344,228 @@ class _EcommerceHomePageState extends State<EcommerceHomePage> {
                 child: Icon(Icons.arrow_forward_ios, size: 16),
               ),
             ),
-          // Sadece ok gösterilmesi isteniyorsa (tıklama fonksiyonu yoksa)
-          if (showArrow && onSeeAllTapped == null)
-            const Padding(
-              padding: EdgeInsets.all(8.0),
-              child: Icon(Icons.arrow_forward_ios, size: 16),
-            ),
         ],
       ),
     );
   }
 
   Widget _buildUpcomingEventsSlider(BuildContext context) {
-    return Column(
-      children: [
-        SizedBox(
-          height: 160,
-          child: PageView.builder(
-            controller: _pageController,
-            itemCount: upcomingEvents.length,
-            onPageChanged: (index) {
-              setState(() {
-                _currentBannerPage = index;
-              });
-            },
+    return FutureBuilder<List<Event>>(
+      future: _futureEvents,
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return const SizedBox(
+            height: 200,
+            child: Center(child: CircularProgressIndicator()),
+          );
+        } else if (snapshot.hasError) {
+          return SizedBox(
+            height: 200,
+            child: Center(child: Text("Error: ${snapshot.error}")),
+          );
+        } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+          return const SizedBox(
+            height: 200,
+            child: Center(child: Text("No upcoming events found.")),
+          );
+        }
+
+        final events = snapshot.data!;
+        if (_allFetchedEvents.isEmpty) {
+          _allFetchedEvents = events;
+        }
+
+        return Column(
+          children: [
+            SizedBox(
+              height: 160,
+              child: PageView.builder(
+                controller: _pageController,
+                itemCount: events.length,
+                onPageChanged: (index) =>
+                    setState(() => _currentBannerPage = index),
+                itemBuilder: (context, index) {
+                  final event = events[index];
+                  return GestureDetector(
+                    onTap: () => _navigateToDetail(event),
+                    child: Container(
+                      margin: const EdgeInsets.symmetric(
+                        horizontal: 16,
+                        vertical: 8,
+                      ),
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(16),
+                        image: DecorationImage(
+                          image: NetworkImage(event.image),
+                          fit: BoxFit.cover,
+                        ),
+                      ),
+                    ),
+                  );
+                },
+              ),
+            ),
+            const SizedBox(height: 8),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: List.generate(events.length, (index) {
+                return AnimatedContainer(
+                  duration: const Duration(milliseconds: 300),
+                  margin: const EdgeInsets.symmetric(horizontal: 4),
+                  height: 8,
+                  width: _currentBannerPage == index ? 24 : 8,
+                  decoration: BoxDecoration(
+                    color: _currentBannerPage == index
+                        ? Theme.of(context).colorScheme.primary
+                        : Colors.grey.withOpacity(0.5),
+                    borderRadius: BorderRadius.circular(4),
+                  ),
+                );
+              }),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  Widget _buildEventCategories(BuildContext context) {
+    return FutureBuilder<List<Category>>(
+      future: _categoriesFuture,
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return const SizedBox(
+            height: 100,
+            child: Center(child: CircularProgressIndicator()),
+          );
+        } else if (snapshot.hasError) {
+          return SizedBox(
+            height: 100,
+            child: Center(child: Text("Categories could not be loaded.")),
+          );
+        } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+          return const SizedBox(
+            height: 100,
+            child: Center(child: Text("No categories found.")),
+          );
+        } else {
+          final categories = snapshot.data!;
+          return SizedBox(
+            height: 100,
+            child: ListView.builder(
+              scrollDirection: Axis.horizontal,
+              physics: const BouncingScrollPhysics(),
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              itemCount: categories.length,
+              itemBuilder: (context, index) {
+                final category = categories[index];
+                return GestureDetector(
+                  onTap: () => _navigateToCategoryPage(category.name),
+                  child: Container(
+                    width: 80,
+                    margin: const EdgeInsets.only(right: 16),
+                    child: Column(
+                      children: [
+                        CircleAvatar(
+                          radius: 35,
+                          backgroundColor: Colors.grey.shade200,
+                          backgroundImage: NetworkImage(category.image),
+                          onBackgroundImageError:
+                              (_, __) {}, // Hata durumunda boş bırak
+                        ),
+                        const SizedBox(height: 8),
+                        Text(
+                          category.name,
+                          style: Theme.of(context).textTheme.bodyMedium,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ],
+                    ),
+                  ),
+                );
+              },
+            ),
+          );
+        }
+      },
+    );
+  }
+
+  Widget _buildPopularEvents(BuildContext context) {
+    return FutureBuilder<List<Event>>(
+      future: _futurePopularEvents,
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return const SizedBox(
+            height: 220,
+            child: Center(child: CircularProgressIndicator()),
+          );
+        } else if (snapshot.hasError) {
+          return SizedBox(
+            height: 220,
+            child: Center(child: Text("Error: ${snapshot.error}")),
+          );
+        } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+          return const SizedBox(
+            height: 220,
+            child: Center(child: Text("No popular events found.")),
+          );
+        }
+
+        final events = snapshot.data!;
+        // Popüler etkinlikleri de tüm etkinlikler listesine ekleyelim ki arama sonuçlarında çıksın
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          if (mounted) {
+            setState(() {
+              for (var event in events) {
+                if (!_allFetchedEvents.any((e) => e.title == event.title)) {
+                  _allFetchedEvents.add(event);
+                }
+              }
+            });
+          }
+        });
+
+        return SizedBox(
+          height: 220,
+          child: ListView.builder(
+            scrollDirection: Axis.horizontal,
+            physics: const BouncingScrollPhysics(),
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            itemCount: events.length,
             itemBuilder: (context, index) {
-              final event = upcomingEvents[index];
+              final event = events[index];
               return GestureDetector(
                 onTap: () => _navigateToDetail(event),
                 child: Container(
-                  margin: const EdgeInsets.symmetric(
-                    horizontal: 16.0,
-                    vertical: 8.0,
-                  ),
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(16),
-                    image: DecorationImage(
-                      image: NetworkImage(event['image']!),
-                      fit: BoxFit.cover,
-                    ),
+                  width: 150,
+                  margin: const EdgeInsets.only(right: 16),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      ClipRRect(
+                        borderRadius: BorderRadius.circular(12),
+                        child: Image.network(
+                          event.image,
+                          height: 180,
+                          width: 150,
+                          fit: BoxFit.cover,
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+                      Text(
+                        event.title,
+                        style: Theme.of(context).textTheme.bodyLarge,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ],
                   ),
                 ),
               );
             },
           ),
-        ),
-        const SizedBox(height: 8),
-        Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: List.generate(upcomingEvents.length, (index) {
-            return AnimatedContainer(
-              duration: const Duration(milliseconds: 300),
-              margin: const EdgeInsets.symmetric(horizontal: 4),
-              height: 8,
-              width: _currentBannerPage == index ? 24 : 8,
-              decoration: BoxDecoration(
-                color: _currentBannerPage == index
-                    ? Theme.of(context).colorScheme.primary
-                    : Colors.grey.withOpacity(0.5),
-                borderRadius: BorderRadius.circular(4),
-              ),
-            );
-          }),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildEventCategories(BuildContext context) {
-    return SizedBox(
-      height: 100,
-      child: ListView.builder(
-        scrollDirection: Axis.horizontal,
-        padding: const EdgeInsets.symmetric(horizontal: 16),
-        itemCount: eventCategories.length,
-        itemBuilder: (context, index) {
-          final category = eventCategories[index];
-          return GestureDetector(
-            onTap: () => _navigateToCategoryPage(category['label']!),
-            child: Container(
-              width: 80,
-              margin: const EdgeInsets.only(right: 16),
-              child: Column(
-                children: [
-                  CircleAvatar(
-                    radius: 35,
-                    backgroundImage: NetworkImage(category['image']!),
-                  ),
-                  const SizedBox(height: 8),
-                  Text(
-                    category['label']!,
-                    style: Theme.of(context).textTheme.bodyMedium,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                ],
-              ),
-            ),
-          );
-        },
-      ),
-    );
-  }
-
-  Widget _buildPopularEvents(BuildContext context) {
-    return SizedBox(
-      height: 220,
-      child: ListView.builder(
-        scrollDirection: Axis.horizontal,
-        padding: const EdgeInsets.symmetric(horizontal: 16),
-        itemCount: popularEvents.length,
-        itemBuilder: (context, index) {
-          final event = popularEvents[index];
-          return GestureDetector(
-            onTap: () => _navigateToDetail(event),
-            child: Container(
-              width: 150,
-              margin: const EdgeInsets.only(right: 16),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  ClipRRect(
-                    borderRadius: BorderRadius.circular(12),
-                    child: Image.network(
-                      event['image']!,
-                      height: 180,
-                      width: 150,
-                      fit: BoxFit.cover,
-                      errorBuilder: (context, error, stackTrace) {
-                        return Container(
-                          height: 180,
-                          width: 150,
-                          color: Colors.grey[300],
-                          child: Icon(
-                            Icons.image_not_supported,
-                            color: Colors.grey[600],
-                          ),
-                        );
-                      },
-                    ),
-                  ),
-                  const SizedBox(height: 8),
-                  Text(
-                    event['title']!,
-                    style: Theme.of(context).textTheme.bodyLarge,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                ],
-              ),
-            ),
-          );
-        },
-      ),
+        );
+      },
     );
   }
 }
