@@ -1,4 +1,4 @@
-// event_model.dart
+// lib/models/event_model.dart
 
 class Event {
   final int id;
@@ -15,6 +15,8 @@ class Event {
   final String categoryName;
   final int bookingCounts;
   final List<String> tags;
+  // YENİ: Backend'den gelebilecek renk kodu için nullable bir alan.
+  final String? color;
 
   Event({
     required this.id,
@@ -31,12 +33,11 @@ class Event {
     required this.categoryName,
     required this.bookingCounts,
     required this.tags,
+    this.color, // Constructor'a ekledik.
   });
 
-  // fromJson metodu artık tertemiz!
   factory Event.fromJson(Map<String, dynamic> json) {
     return Event(
-      // ?? operatörü ile null gelme ihtimaline karşı koruma
       id: json['id'] ?? 0,
       title: json['title'] ?? 'No Title',
       description: json['description'] ?? '',
@@ -45,23 +46,19 @@ class Event {
       date: json['date'] ?? '',
       time: json['time'] ?? '',
       capacity: json['capacity'] ?? 0,
-
-      // Backend'den gelen yeni, temiz alanları doğrudan atıyoruz.
       organizerId: json['organizer'] ?? 0,
       organizerUsername: json['organizer_username'] ?? 'Unknown',
       categoryId: json['category'] ?? 0,
       categoryName: json['category_name'] ?? 'Uncategorized',
       bookingCounts: json['bookings_count'] ?? 0,
-
-      // Backend artık her zaman bir liste göndereceği için bu atama çok güvenli.
       tags: json['tags'] != null ? List<String>.from(json['tags']) : [],
+      // YENİ: JSON'dan 'color' alanını okuyoruz. Yoksa null olacak.
+      color: json['color'],
     );
   }
 
-  // toJson metodu genellikle yeni bir veri oluştururken kullanılır
-  // ve daha az alan içerir. Bu kısım projenizin ihtiyacına göre değişebilir.
   Map<String, dynamic> toJson() {
-    return {
+    final Map<String, dynamic> data = {
       'title': title,
       'description': description,
       'location': location,
@@ -70,8 +67,12 @@ class Event {
       'time': time,
       'capacity': capacity,
       'category': categoryId,
-      // Backend'e etiket gönderirken virgülle birleştirilmiş string'e çeviririz.
       'tags': tags.join(','),
     };
+    // Eğer renk null değilse, JSON'a ekle.
+    if (color != null) {
+      data['color'] = color;
+    }
+    return data;
   }
 }

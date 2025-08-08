@@ -1,15 +1,37 @@
+import 'package:eventure/theme/theme.dart';
 import 'package:flutter/material.dart';
-import 'dart:convert';
-import 'package:http/http.dart' as http;
+// Gerekli import'lar aynı kalıyor
+import '../models/event_model.dart';
+import '../services/event_services.dart';
 
-// --- RENK VE VERİ MODELLERİ ---
+// --- RENK PALETİ VE YARDIMCILAR ---
 
-const Color orangePalette = Color(0xFFFF9F1C);
-const Color tealPalette = Color(0xFF56C1C2);
-const Color salmonPalette = Color(0xFFF67280);
-const Color darkCoralPalette = Color(0xFFEB5E55);
-const Color lightYellowPalette = Color(0xFFFFE66D);
+// Fallback (yedek) paletimiz hala burada duruyor.
+final List<Color> cardColorPalette = [
+  const Color(0xFF56C1C2).withOpacity(0.3), // tealPalette
+  const Color(0xFFF67280).withOpacity(0.3), // salmonPalette
+  const Color(0xFFFFE66D).withOpacity(0.6), // lightYellowPalette
+  const Color(0xFFEB5E55).withOpacity(0.3), // darkCoralPalette
+  const Color(0xFFC06C84).withOpacity(0.3),
+  const Color(0xFF6C5B7B).withOpacity(0.3),
+  const Color(0xFF355C7D).withOpacity(0.3),
+];
 
+// YENİ: Hex renk kodunu Flutter'ın Color nesnesine çeviren yardımcı fonksiyon.
+Color _colorFromHex(String hexColor) {
+  try {
+    hexColor = hexColor.toUpperCase().replaceAll("#", "");
+    if (hexColor.length == 6) {
+      hexColor = "FF" + hexColor; // Opaklığı tam yaparak 8 haneye tamamla
+    }
+    return Color(int.parse(hexColor, radix: 16));
+  } catch (e) {
+    // Hatalı bir format gelirse varsayılan bir renk döndür.
+    return Colors.grey.withOpacity(0.3);
+  }
+}
+
+// UI Modelimiz
 class Etkinlik {
   final String title;
   final String description;
@@ -29,162 +51,69 @@ class Etkinlik {
     required this.attendeeImageUrls,
   });
 
-  factory Etkinlik.fromJson(Map<String, dynamic> json) {
+  // DEĞİŞİKLİK: Bu factory, hibrit renk mantığını uygular.
+  factory Etkinlik.fromEventModel(Event event) {
+    final String displayTime =
+        event.time.length > 5 ? event.time.substring(0, 5) : event.time;
+
+    // HİBRİT RENK SEÇİMİ MANTIĞI
+    Color finalCardColor;
+    if (event.color != null && event.color!.isNotEmpty) {
+      // 1. Öncelik: Backend'den gelen rengi kullan.
+      finalCardColor =
+          _colorFromHex(event.color!).withOpacity(0.4); // Opaklık ekleyelim
+    } else {
+      // 2. Öncelik (Fallback): Backend'den renk gelmezse, paletten ID'ye göre ata.
+      finalCardColor = cardColorPalette[event.id % cardColorPalette.length];
+    }
+
     return Etkinlik(
-      title: json['title'],
-      description: json['description'],
-      location: json['location'],
-      time: json['time'],
-      categoryIcon: const Icon(Icons.event, color: Colors.grey, size: 24),
-      cardColor: _mapColor(json['cardColor']),
-      attendeeImageUrls: List<String>.from(json['attendeeImageUrls']),
+      title: event.title,
+      description: event.description,
+      location: event.location,
+      time: displayTime,
+      categoryIcon: _mapCategoryToIcon(event.categoryName),
+      cardColor: finalCardColor, // Hesaplanan son rengi ata.
+      attendeeImageUrls: [
+        'https://randomuser.me/api/portraits/men/81.jpg',
+        'https://randomuser.me/api/portraits/women/82.jpg',
+      ],
     );
   }
 
-  static Color _mapColor(String colorName) {
-    switch (colorName) {
-      case 'salmonPalette':
-        return salmonPalette.withOpacity(0.3);
-      case 'tealPalette':
-        return tealPalette.withOpacity(0.3);
-      case 'lightYellowPalette':
-        return lightYellowPalette.withOpacity(0.5);
-      case 'darkCoralPalette':
-        return darkCoralPalette.withOpacity(0.3);
+  static Widget _mapCategoryToIcon(String category) {
+    switch (category.toLowerCase()) {
+      case 'teknoloji':
+        return const Icon(Icons.code, color: Colors.green, size: 24);
+      case 'spor':
+        return const Icon(Icons.skateboarding, color: Colors.orange, size: 24);
+      case 'e-spor':
+        return const Icon(Icons.gamepad_outlined, color: Colors.red, size: 24);
+      case 'müzik':
+        return const Icon(Icons.music_note, color: Colors.blue, size: 24);
+      case 'sanat':
+      case 'bed cinema':
+        return const Icon(Icons.palette, color: Colors.purple, size: 24);
       default:
-        return Colors.grey.withOpacity(0.3);
+        return const Icon(Icons.event, color: Colors.grey, size: 24);
     }
   }
 }
 
-// --- GÜNLERE GÖRE AYRILMIŞ MANUEL ETKİNLİK VERİSİ ---
-final Map<String, List<Etkinlik>> _manuelEtkinlikVerisi = {
-  '1': [
-    Etkinlik(
-      title: 'Kodlama Maratonu',
-      description: '24 saat sürecek hackathon. Yaratıcı projeler geliştir!',
-      location: 'Teknoloji Merkezi',
-      time: '09:00 AM - 09:00 AM (Ertesi Gün)',
-      categoryIcon: const Icon(Icons.code, color: Colors.green, size: 24),
-      cardColor: tealPalette.withOpacity(0.15),
-      attendeeImageUrls: [
-        'https://randomuser.me/api/portraits/men/81.jpg',
-        'https://randomuser.me/api/portraits/women/82.jpg',
-        'https://randomuser.me/api/portraits/men/83.jpg',
-      ],
-    ),
-  ],
-  '3': [
-    Etkinlik(
-      title: 'Kaykay Buluşması',
-      description: 'Tüm seviyeler için serbest stil ve sokak parkuru.',
-      location: 'Merkez Skatepark',
-      time: '02:00 PM - 05:00 PM',
-      categoryIcon: const Icon(
-        Icons.skateboarding,
-        color: Colors.orange,
-        size: 24,
-      ),
-      cardColor: lightYellowPalette.withOpacity(0.7),
-      attendeeImageUrls: [
-        'https://randomuser.me/api/portraits/men/50.jpg',
-        'https://randomuser.me/api/portraits/women/51.jpg',
-      ],
-    ),
-  ],
-  '5': [
-    Etkinlik(
-      title: 'E-Spor Turnuvası',
-      description: 'Valorant 5v5 turnuvası. Büyük ödüller sizi bekliyor!',
-      location: 'Nexus Arena',
-      time: '12:30 PM - 08:00 PM',
-      categoryIcon: const Icon(
-        Icons.gamepad_outlined,
-        color: Colors.red,
-        size: 24,
-      ),
-      cardColor: salmonPalette.withOpacity(0.3),
-      attendeeImageUrls: [
-        'https://randomuser.me/api/portraits/men/32.jpg',
-        'https://randomuser.me/api/portraits/women/12.jpg',
-        'https://randomuser.me/api/portraits/men/33.jpg',
-        'https://randomuser.me/api/portraits/women/13.jpg',
-      ],
-    ),
-    Etkinlik(
-      title: 'Indie Müzik Gecesi',
-      description: 'Yerel gruplardan canlı performanslar ve akustik setler.',
-      location: 'Sahne Kafe',
-      time: '09:00 PM - 11:45 PM',
-      categoryIcon: const Icon(Icons.music_note, color: Colors.blue, size: 24),
-      cardColor: tealPalette.withOpacity(0.3),
-      attendeeImageUrls: [
-        'https://randomuser.me/api/portraits/women/44.jpg',
-        'https://randomuser.me/api/portraits/men/45.jpg',
-      ],
-    ),
-  ],
-  '6': [],
-  '10': [
-    Etkinlik(
-      title: 'Film Gecesi',
-      description: 'Klasik filmlerden oluşan özel gösterim.',
-      location: 'Sinema Salonu',
-      time: '08:00 PM - 10:00 PM',
-      categoryIcon: const Icon(
-        Icons.local_movies,
-        color: Colors.purple,
-        size: 24,
-      ),
-      cardColor: darkCoralPalette.withOpacity(0.3),
-      attendeeImageUrls: [
-        'https://randomuser.me/api/portraits/men/1.jpg',
-        'https://randomuser.me/api/portraits/women/2.jpg',
-      ],
-    ),
-  ],
-  '15': [
-    Etkinlik(
-      title: 'Doğa Yürüyüşü',
-      description: 'Şehir dışı orman parkurunda sabah yürüyüşü.',
-      location: 'Çamlıca Ormanı',
-      time: '08:00 AM - 12:00 PM',
-      categoryIcon: const Icon(Icons.hiking, color: Colors.brown, size: 24),
-      cardColor: lightYellowPalette.withOpacity(0.5),
-      attendeeImageUrls: ['https://randomuser.me/api/portraits/women/10.jpg'],
-    ),
-  ],
-  '20': [
-    Etkinlik(
-      title: 'Flutter Konferansı',
-      description: 'Flutter geliştiricileri için seminer ve atölyeler.',
-      location: 'Kongre Merkezi',
-      time: '09:00 AM - 05:00 PM',
-      categoryIcon: const Icon(
-        Icons.laptop_chromebook,
-        color: Colors.blue,
-        size: 24,
-      ),
-      cardColor: tealPalette.withOpacity(0.5),
-      attendeeImageUrls: [
-        'https://randomuser.me/api/portraits/men/21.jpg',
-        'https://randomuser.me/api/portraits/women/22.jpg',
-        'https://randomuser.me/api/portraits/men/23.jpg',
-        'https://randomuser.me/api/portraits/women/24.jpg',
-        'https://randomuser.me/api/portraits/men/25.jpg',
-      ],
-    ),
-  ],
-};
+// Geri kalan kodun TAMAMI AYNI kalabilir.
+// main, MyApp, HistoryScreen, _CalendarHeader, _DateWidget, _EventCard, vb.
+// widget'larda başka hiçbir değişiklik yapmanıza gerek yok.
+// ...
+// ... (Buraya bir önceki yanıttaki geri kalan tüm kodları yapıştırabilirsiniz)
+// ...
 
-// Ana uygulama başlatma noktası
+// ... KODUN GERİ KALANI ...
 void main() {
   runApp(const MyApp());
 }
 
 class MyApp extends StatelessWidget {
   const MyApp({Key? key}) : super(key: key);
-
   @override
   Widget build(BuildContext context) {
     return const MaterialApp(
@@ -194,25 +123,69 @@ class MyApp extends StatelessWidget {
   }
 }
 
-// --- ANA EKRAN WIDGET'I ---
 class HistoryScreen extends StatefulWidget {
   const HistoryScreen({Key? key}) : super(key: key);
-
   @override
   State<HistoryScreen> createState() => _HistoryScreenState();
 }
 
 class _HistoryScreenState extends State<HistoryScreen> {
-  Map<String, List<Etkinlik>> _etkinlikVeriTabani = _manuelEtkinlikVerisi;
-
+  Map<String, List<Etkinlik>> _etkinlikVeriTabani = {};
   String _selectedDate = DateTime.now().day.toString();
-  int _selectedMonth = DateTime.now().month;
-
-  bool _isLoading = false;
+  final int _selectedMonth = DateTime.now().month;
+  bool _isLoading = true;
 
   @override
   void initState() {
     super.initState();
+    _fetchAndProcessEvents();
+  }
+
+  Future<void> _fetchAndProcessEvents() async {
+    try {
+      final eventService = EventService();
+      final List<Event> allEvents = await eventService.fetchEvents();
+      final Map<String, List<Etkinlik>> processedEvents = {};
+
+      for (final event in allEvents) {
+        DateTime eventDate;
+        try {
+          eventDate = DateTime.parse(event.date);
+        } catch (e) {
+          debugPrint(
+              "Hatalı tarih formatı: ${event.date} - Etkinlik atlandı: ${event.title}");
+          continue;
+        }
+        if (eventDate.month == _selectedMonth) {
+          final day = eventDate.day.toString();
+          final uiEvent = Etkinlik.fromEventModel(event);
+          if (processedEvents.containsKey(day)) {
+            processedEvents[day]!.add(uiEvent);
+          } else {
+            processedEvents[day] = [uiEvent];
+          }
+        }
+      }
+
+      if (mounted) {
+        setState(() {
+          _etkinlikVeriTabani = processedEvents;
+          _isLoading = false;
+        });
+      }
+    } catch (e) {
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+        });
+      }
+      debugPrint("Etkinlikler getirilirken hata oluştu: $e");
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Etkinlikler yüklenemedi: $e')),
+        );
+      }
+    }
   }
 
   void _onDateSelected(String date) {
@@ -224,7 +197,6 @@ class _HistoryScreenState extends State<HistoryScreen> {
   @override
   Widget build(BuildContext context) {
     final eventsForSelectedDay = _etkinlikVeriTabani[_selectedDate] ?? [];
-
     return Scaffold(
       backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       body: SafeArea(
@@ -234,33 +206,28 @@ class _HistoryScreenState extends State<HistoryScreen> {
               selectedDate: _selectedDate,
               selectedMonth: _selectedMonth,
               onDateSelected: _onDateSelected,
+              eventsData: _etkinlikVeriTabani,
             ),
-            if (eventsForSelectedDay.isEmpty && !_isLoading)
-              const Expanded(
-                child: Center(
-                  child: Text(
-                    'There are no events on the selected day.',
-                    style: TextStyle(fontSize: 16, color: Colors.grey),
-                  ),
-                ),
-              )
-            else
-              Expanded(
-                child: _isLoading
-                    ? const Center(
-                        child: CircularProgressIndicator(
-                          color: darkCoralPalette,
+            Expanded(
+              child: _isLoading
+                  ? const Center(
+                      child: CircularProgressIndicator(color: darkCoralPalette))
+                  : eventsForSelectedDay.isEmpty
+                      ? const Center(
+                          child: Text(
+                            'Seçili günde etkinlik bulunmuyor.',
+                            style: TextStyle(fontSize: 16, color: Colors.grey),
+                          ),
+                        )
+                      : ListView.builder(
+                          padding: const EdgeInsets.symmetric(horizontal: 20.0),
+                          itemCount: eventsForSelectedDay.length,
+                          itemBuilder: (context, index) {
+                            final event = eventsForSelectedDay[index];
+                            return _EventCard(event: event);
+                          },
                         ),
-                      )
-                    : ListView.builder(
-                        padding: const EdgeInsets.symmetric(horizontal: 20.0),
-                        itemCount: eventsForSelectedDay.length,
-                        itemBuilder: (context, index) {
-                          final event = eventsForSelectedDay[index];
-                          return _EventCard(event: event);
-                        },
-                      ),
-              ),
+            ),
           ],
         ),
       ),
@@ -268,27 +235,24 @@ class _HistoryScreenState extends State<HistoryScreen> {
   }
 }
 
-// --- YARDIMCI WIDGET'LAR ---
-
 class _CalendarHeader extends StatefulWidget {
   final String selectedDate;
   final int selectedMonth;
   final Function(String) onDateSelected;
-
-  const _CalendarHeader({
-    Key? key,
-    required this.selectedDate,
-    required this.selectedMonth,
-    required this.onDateSelected,
-  }) : super(key: key);
-
+  final Map<String, List<Etkinlik>> eventsData;
+  const _CalendarHeader(
+      {Key? key,
+      required this.selectedDate,
+      required this.selectedMonth,
+      required this.onDateSelected,
+      required this.eventsData})
+      : super(key: key);
   @override
   _CalendarHeaderState createState() => _CalendarHeaderState();
 }
 
 class _CalendarHeaderState extends State<_CalendarHeader> {
   bool _isExpanded = false;
-
   final List<String> _dayNames = const [
     'Sun',
     'Mon',
@@ -296,9 +260,8 @@ class _CalendarHeaderState extends State<_CalendarHeader> {
     'Wed',
     'Thu',
     'Fri',
-    'Sat',
+    'Sat'
   ];
-
   void _toggleCalendarView() {
     setState(() {
       _isExpanded = !_isExpanded;
@@ -306,34 +269,22 @@ class _CalendarHeaderState extends State<_CalendarHeader> {
   }
 
   String _getMonthName(int month) {
-    switch (month) {
-      case 1:
-        return 'January';
-      case 2:
-        return 'February';
-      case 3:
-        return 'March';
-      case 4:
-        return 'April';
-      case 5:
-        return 'May';
-      case 6:
-        return 'June';
-      case 7:
-        return 'July';
-      case 8:
-        return 'August';
-      case 9:
-        return 'September';
-      case 10:
-        return 'October';
-      case 11:
-        return 'November';
-      case 12:
-        return 'December';
-      default:
-        return '';
-    }
+    const monthNames = [
+      '',
+      'January',
+      'February',
+      'March',
+      'April',
+      'May',
+      'June',
+      'July',
+      'August',
+      'September',
+      'October',
+      'November',
+      'December'
+    ];
+    return monthNames[month];
   }
 
   int _getNumberOfDaysInMonth(int month, int year) {
@@ -350,28 +301,22 @@ class _CalendarHeaderState extends State<_CalendarHeader> {
   List<String> get _datesForCurrentMonth {
     final year = DateTime.now().year;
     final month = widget.selectedMonth;
-
     final firstDayOfMonth = DateTime(year, month, 1);
     final daysInMonth = _getNumberOfDaysInMonth(month, year);
-
     final List<String> dates = [];
     final firstWeekdayOffset = firstDayOfMonth.weekday % 7;
-
     for (int i = 0; i < firstWeekdayOffset; i++) {
       dates.add('');
     }
-
     for (int i = 1; i <= daysInMonth; i++) {
       dates.add(i.toString());
     }
-
     return dates;
   }
 
   @override
   Widget build(BuildContext context) {
     final screenHeight = MediaQuery.of(context).size.height;
-
     return Padding(
       padding: const EdgeInsets.fromLTRB(20, 20, 20, 20),
       child: Column(
@@ -380,21 +325,16 @@ class _CalendarHeaderState extends State<_CalendarHeader> {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(
-                '${_getMonthName(widget.selectedMonth)} ${DateTime.now().year}',
-                style: const TextStyle(
-                  fontSize: 26,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
+                  '${_getMonthName(widget.selectedMonth)} ${DateTime.now().year}',
+                  style: const TextStyle(
+                      fontSize: 26, fontWeight: FontWeight.bold)),
               IconButton(
-                icon: Icon(
-                  _isExpanded
-                      ? Icons.keyboard_arrow_up
-                      : Icons.keyboard_arrow_down,
-                  color: Theme.of(context).colorScheme.onSurface,
-                ),
-                onPressed: _toggleCalendarView,
-              ),
+                  icon: Icon(
+                      _isExpanded
+                          ? Icons.keyboard_arrow_up
+                          : Icons.keyboard_arrow_down,
+                      color: Theme.of(context).colorScheme.onSurface),
+                  onPressed: _toggleCalendarView),
             ],
           ),
           const SizedBox(height: 20),
@@ -418,20 +358,15 @@ class _CalendarHeaderState extends State<_CalendarHeader> {
           padding: const EdgeInsets.symmetric(horizontal: 5.0),
           child: Row(
             children: _dayNames
-                .map(
-                  (day) => Expanded(
-                    child: Center(
-                      child: Text(
-                        day,
-                        style: TextStyle(
-                          fontSize: 14,
-                          color: Theme.of(context).colorScheme.onSurface,
-                          fontWeight: FontWeight.w500,
-                        ),
+                .map((day) => Expanded(
+                      child: Center(
+                        child: Text(day,
+                            style: TextStyle(
+                                fontSize: 14,
+                                color: Theme.of(context).colorScheme.onSurface,
+                                fontWeight: FontWeight.w500)),
                       ),
-                    ),
-                  ),
-                )
+                    ))
                 .toList(),
           ),
         ),
@@ -441,20 +376,17 @@ class _CalendarHeaderState extends State<_CalendarHeader> {
             shrinkWrap: true,
             physics: const NeverScrollableScrollPhysics(),
             gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-              crossAxisCount: 7,
-              childAspectRatio: 1.0,
-              crossAxisSpacing: 5,
-              mainAxisSpacing: 5,
-            ),
+                crossAxisCount: 7,
+                childAspectRatio: 1.0,
+                crossAxisSpacing: 5,
+                mainAxisSpacing: 5),
             itemCount: dates.length,
             itemBuilder: (context, index) {
               final date = dates[index];
-              if (date.isEmpty) {
-                return Container();
-              }
+              if (date.isEmpty) return Container();
               return _DateWidget(
                 date: date,
-                dots: _manuelEtkinlikVerisi[date]?.length ?? 0,
+                dots: widget.eventsData[date]?.length ?? 0,
                 isSelected: widget.selectedDate == date,
                 onDateSelected: widget.onDateSelected,
               );
@@ -467,27 +399,18 @@ class _CalendarHeaderState extends State<_CalendarHeader> {
 
   Widget _buildWeeklyCalendar() {
     final allDates = _datesForCurrentMonth;
-
     int selectedIndex = allDates.indexOf(widget.selectedDate);
     if (selectedIndex == -1) {
       selectedIndex = allDates.indexOf(DateTime.now().day.toString());
     }
-    if (selectedIndex == -1) {
-      selectedIndex = 0;
-    }
-
+    if (selectedIndex == -1) selectedIndex = 0;
     final startOfWeekIndex = (selectedIndex ~/ 7) * 7;
     final endOfWeekIndex = startOfWeekIndex + 7;
-
-    List<String> currentWeekDates = allDates.sublist(
-      startOfWeekIndex,
-      endOfWeekIndex > allDates.length ? allDates.length : endOfWeekIndex,
-    );
-
+    List<String> currentWeekDates = allDates.sublist(startOfWeekIndex,
+        endOfWeekIndex > allDates.length ? allDates.length : endOfWeekIndex);
     while (currentWeekDates.length < 7) {
       currentWeekDates.add('');
     }
-
     return _buildCalendarGrid(currentWeekDates);
   }
 }
@@ -497,63 +420,49 @@ class _DateWidget extends StatelessWidget {
   final bool isSelected;
   final int dots;
   final Function(String) onDateSelected;
-
-  const _DateWidget({
-    Key? key,
-    required this.date,
-    required this.isSelected,
-    required this.onDateSelected,
-    this.dots = 0,
-  }) : super(key: key);
-
+  const _DateWidget(
+      {Key? key,
+      required this.date,
+      required this.isSelected,
+      required this.onDateSelected,
+      this.dots = 0})
+      : super(key: key);
   @override
   Widget build(BuildContext context) {
-    if (date.isEmpty) {
-      return Container();
-    }
+    const Color darkCoralPalette = Color(0xFFEB5E55);
+    const Color orangePalette = Color(0xFFFF9F1C);
     return GestureDetector(
       onTap: () => onDateSelected(date),
       child: Container(
         decoration: BoxDecoration(
-          color: isSelected ? darkCoralPalette : Colors.transparent,
-          borderRadius: BorderRadius.circular(12),
-        ),
+            color: isSelected ? darkCoralPalette : Colors.transparent,
+            borderRadius: BorderRadius.circular(12)),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            // Tarih Numarası
-            Text(
-              date,
-              style: TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.bold,
-                color: isSelected
-                    ? Colors.white
-                    : Theme.of(context).colorScheme.onSurface,
-              ),
-            ),
+            Text(date,
+                style: TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                    color: isSelected
+                        ? Colors.white
+                        : Theme.of(context).colorScheme.onSurface)),
             const SizedBox(height: 4),
-            // Noktalar için sabit yükseklikte bir alan.
-            // Bu sayede etkinlik olmasa bile boşluk kalır ve hizalama bozulmaz.
             SizedBox(
-              height: 5, // Bir noktanın yüksekliği kadar
+              height: 5,
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: List.generate(
-                  // YENİ MANTIK: Etkinlik sayısı (dots) 0'dan büyükse 1, değilse 0 döndür.
-                  // Bu sayede her zaman en fazla bir nokta gösterilir...
                   dots > 0 ? 1 : 0,
                   (index) => Container(
-                    margin: const EdgeInsets.symmetric(horizontal: 1.5),
-                    width: 5,
-                    height: 5,
-                    decoration: BoxDecoration(
-                      color: isSelected
-                          ? Colors.white.withOpacity(0.8)
-                          : orangePalette,
-                      shape: BoxShape.circle,
-                    ),
-                  ),
+                      margin: const EdgeInsets.symmetric(horizontal: 1.5),
+                      width: 5,
+                      height: 5,
+                      decoration: BoxDecoration(
+                          color: isSelected
+                              ? Colors.white.withOpacity(0.8)
+                              : orangePalette,
+                          shape: BoxShape.circle)),
                 ),
               ),
             ),
@@ -573,9 +482,7 @@ class _EventCard extends StatelessWidget {
       margin: const EdgeInsets.only(bottom: 20.0),
       padding: const EdgeInsets.all(16.0),
       decoration: BoxDecoration(
-        color: event.cardColor,
-        borderRadius: BorderRadius.circular(20.0),
-      ),
+          color: event.cardColor, borderRadius: BorderRadius.circular(20.0)),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -586,35 +493,26 @@ class _EventCard extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(
-                      event.title,
-                      style: const TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
+                    Text(event.title,
+                        style: const TextStyle(
+                            fontSize: 18, fontWeight: FontWeight.bold)),
                     const SizedBox(height: 4),
-                    Text(
-                      event.description,
-                      style: TextStyle(
-                        fontSize: 14,
-                        color: Theme.of(context).colorScheme.onSurface,
-                        height: 1.4,
-                      ),
-                    ),
+                    Text(event.description,
+                        style: TextStyle(
+                            fontSize: 14,
+                            color: Theme.of(context).colorScheme.onSurface,
+                            height: 1.4)),
                   ],
                 ),
               ),
               const SizedBox(width: 10),
               Container(
-                width: 45,
-                height: 45,
-                decoration: BoxDecoration(
-                  color: Colors.black.withOpacity(0.05),
-                  shape: BoxShape.circle,
-                ),
-                child: Center(child: event.categoryIcon),
-              ),
+                  width: 45,
+                  height: 45,
+                  decoration: BoxDecoration(
+                      color: Colors.black.withOpacity(0.05),
+                      shape: BoxShape.circle),
+                  child: Center(child: event.categoryIcon)),
             ],
           ),
           const SizedBox(height: 16),
@@ -640,18 +538,16 @@ class _InfoRow extends StatelessWidget {
       : super(key: key);
   @override
   Widget build(BuildContext context) {
+    const Color tealPalette = Color(0xFF56C1C2);
     return Row(
       children: [
         Icon(icon, color: tealPalette, size: 20),
         const SizedBox(width: 8),
-        Text(
-          text,
-          style: TextStyle(
-            fontSize: 14,
-            fontWeight: FontWeight.w500,
-            color: Theme.of(context).colorScheme.onSurface,
-          ),
-        ),
+        Text(text,
+            style: TextStyle(
+                fontSize: 14,
+                fontWeight: FontWeight.w500,
+                color: Theme.of(context).colorScheme.onSurface)),
       ],
     );
   }
@@ -670,16 +566,13 @@ class _Attendees extends StatelessWidget {
           radius: 15,
           backgroundColor: Colors.white,
           child: CircleAvatar(
-            radius: 13,
-            backgroundImage: NetworkImage(attendeeUrls[index]),
-          ),
+              radius: 13, backgroundImage: NetworkImage(attendeeUrls[index])),
         ),
       ),
     );
     return SizedBox(
-      height: 30,
-      width: (attendeeUrls.length * 22.0) + 8,
-      child: Stack(children: avatars),
-    );
+        height: 30,
+        width: (attendeeUrls.length * 22.0) + 8,
+        child: Stack(children: avatars));
   }
 }
