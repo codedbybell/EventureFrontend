@@ -1,8 +1,8 @@
-// lib/models/auth_models.dart (TAM VE SON HALİ)
+// lib/models/auth_models.dart
 
 import 'dart:convert';
 
-// --- Login Modelleri (Aynı Kalıyor) ---
+// --- GİRİŞ İÇİN MODELLER ---
 class LoginRequestModel {
   final String email;
   final String password;
@@ -22,7 +22,7 @@ class LoginResponseModel {
   }
 }
 
-// --- Register Modeli (Aynı Kalıyor) ---
+// --- KAYIT OLMA İÇİN MODEL ---
 class RegisterRequestModel {
   final String firstName;
   final String lastName;
@@ -45,13 +45,13 @@ class RegisterRequestModel {
       });
 }
 
-// --- YENİ EKLENDİ: Kullanıcı Profil Modeli ---
+// --- KULLANICI PROFİLİ İÇİN MODEL ---
 class UserProfileModel {
   final String firstName;
   final String lastName;
   final String email;
-  final String? bio; // Bio boş olabilir
-  final String? profilePictureUrl; // Profil resmi URL'i boş olabilir
+  final String? bio;
+  final String? profilePictureUrl;
 
   UserProfileModel({
     required this.firstName,
@@ -63,7 +63,6 @@ class UserProfileModel {
 
   factory UserProfileModel.fromJson(Map<String, dynamic> json) {
     return UserProfileModel(
-      // Django'daki first_name ve last_name'i birleştiriyoruz
       firstName: json['first_name'] ?? '',
       lastName: json['last_name'] ?? '',
       email: json['email'] ?? '',
@@ -71,4 +70,23 @@ class UserProfileModel {
       profilePictureUrl: json['profile_picture'],
     );
   }
+}
+
+// --- ŞİFRE DEĞİŞTİRME İÇİN MODEL ---
+class ChangePasswordRequestModel {
+  final String oldPassword;
+  final String newPassword;
+  final String newPasswordConfirm;
+
+  ChangePasswordRequestModel({
+    required this.oldPassword,
+    required this.newPassword,
+    required this.newPasswordConfirm,
+  });
+
+  String toJson() => json.encode({
+        'old_password': oldPassword,
+        'new_password': newPassword,
+        'new_password_confirm': newPasswordConfirm,
+      });
 }

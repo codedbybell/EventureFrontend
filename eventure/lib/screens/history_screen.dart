@@ -370,6 +370,8 @@ class _CalendarHeaderState extends State<_CalendarHeader> {
 
   @override
   Widget build(BuildContext context) {
+    final screenHeight = MediaQuery.of(context).size.height;
+
     return Padding(
       padding: const EdgeInsets.fromLTRB(20, 20, 20, 20),
       child: Column(
@@ -399,7 +401,7 @@ class _CalendarHeaderState extends State<_CalendarHeader> {
           AnimatedContainer(
             duration: const Duration(milliseconds: 300),
             curve: Curves.easeInOut,
-            height: _isExpanded ? 240 : 85,
+            height: _isExpanded ? screenHeight * 0.35 : screenHeight * 0.12,
             child: _isExpanded
                 ? _buildCalendarGrid(_datesForCurrentMonth)
                 : _buildWeeklyCalendar(),
@@ -525,7 +527,9 @@ class _DateWidget extends StatelessWidget {
               style: TextStyle(
                 fontSize: 16,
                 fontWeight: FontWeight.bold,
-                color: isSelected ? Colors.white : Colors.black,
+                color: isSelected
+                    ? Colors.white
+                    : Theme.of(context).colorScheme.onSurface,
               ),
             ),
             const SizedBox(height: 4),
