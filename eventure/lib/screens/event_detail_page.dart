@@ -236,6 +236,7 @@ class EventDetailPage extends StatelessWidget {
           shape:
               RoundedRectangleBorder(borderRadius: BorderRadius.circular(25)),
           elevation: 5,
+          maximumSize: const Size(double.infinity, 60),
           shadowColor: const Color(0xFFFF6B9D).withOpacity(0.5)),
       child: Ink(
         decoration: BoxDecoration(

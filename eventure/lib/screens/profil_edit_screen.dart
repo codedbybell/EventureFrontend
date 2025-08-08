@@ -11,7 +11,6 @@ import '../models/auth_models.dart';
 import '../services/auth_service.dart';
 import 'login_screen.dart';
 
-
 class ProfileEditScreen extends StatefulWidget {
   const ProfileEditScreen({
     Key? key,
@@ -32,7 +31,6 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
   final AuthService _authService = AuthService();
   UserProfileModel? _currentUser;
   bool _isLoading = true;
-
 
   File? _profileImage;
   String? _networkImageUrl;
@@ -131,7 +129,6 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
       // _isLoading'ı false yapmaya gerek kalmayabilir.
       if (mounted) setState(() => _isLoading = false);
     }
-
   }
 
   Future<void> _pickImage() async {
@@ -154,17 +151,14 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
                   borderRadius: BorderRadius.circular(2),
                 ),
               ),
-
               const SizedBox(height: 20),
-              const Text('profile_photo_edit'.tr,
+              Text('profile_photo_edit'.tr,
                   style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
               const SizedBox(height: 20),
-
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: [
                   _buildImageOption(
-
                     icon: Icons.camera_alt,
                     label: 'camera'.tr,
                     onTap: () => _getImage(ImageSource.camera),
@@ -179,7 +173,6 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
                     label: 'remove'.tr,
                     onTap: () => _removeImage(),
                   ),
-
                 ],
               ),
               const SizedBox(height: 20),
@@ -212,23 +205,6 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
     });
   }
 
-
-  void _saveProfile() {
-    if (_formKey.currentState!.validate()) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('profile_updated_successfully'.tr),
-          backgroundColor: Color(0xFF4ECDC4),
-          behavior: SnackBarBehavior.floating,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(10),
-          ),
-        ),
-      );
-      Navigator.pop(context);
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -246,33 +222,33 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
           ),
         ],
       ),
-      body: Column(
-        children: [
-          Expanded(
-            child: SingleChildScrollView(
-              child: Padding(
-                padding: const EdgeInsets.all(20),
-                child: Form(
-                  key: _formKey,
-                  child: Column(
-                    children: [
-
-                      const SizedBox(height: 40),
-                      _buildProfilePhoto(),
-                      const SizedBox(height: 40),
-                      _buildFormFields(),
-                      const Divider(height: 40),
-                      _buildDarkModeSwitch(),
-                      const Divider(),
-                      _buildChangePasswordTextButton(),
-                      const SizedBox(height: 30),
-                      _buildLogoutButton(), // Buton burada çağrılıyor
-                      const SizedBox(height: 20),
-                    ],
-                  ),
+      body: Column(children: [
+        Expanded(
+          child: SingleChildScrollView(
+            child: Padding(
+              padding: const EdgeInsets.all(20),
+              child: Form(
+                key: _formKey,
+                child: Column(
+                  children: [
+                    const SizedBox(height: 40),
+                    _buildProfilePhoto(),
+                    const SizedBox(height: 40),
+                    _buildFormFields(),
+                    const Divider(height: 40),
+                    _buildDarkModeSwitch(),
+                    const Divider(),
+                    _buildChangePasswordTextButton(),
+                    const SizedBox(height: 30),
+                    _buildLogoutButton(), // Buton burada çağrılıyor
+                    const SizedBox(height: 20),
+                  ],
                 ),
               ),
             ),
+          ),
+        )
+      ]),
       bottomNavigationBar: _isLoading
           ? null
           : Padding(
@@ -286,7 +262,6 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
                   const SizedBox(height: 10),
                 ],
               ),
-
             ),
     );
   }
@@ -370,7 +345,6 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
         const SizedBox(height: 10),
         GestureDetector(
           onTap: _pickImage,
-
           child: Text(
             'profile_photo_edit'.tr,
             style: TextStyle(
@@ -388,7 +362,6 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
     return Column(
       children: [
         _buildInputField(
-
           controller: _firstNameController,
           label: 'First Name',
           icon: Icons.person_outline,
@@ -401,7 +374,6 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
           icon: Icons.person_outline,
           validator: (value) =>
               value == null || value.isEmpty ? 'Last name is required' : null,
-
         ),
         _buildInputField(
           controller: _emailController,
@@ -409,7 +381,6 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
           icon: Icons.email_outlined,
           keyboardType: TextInputType.emailAddress,
           validator: (value) {
-
             if (value == null || value.isEmpty) return 'email_required'.tr;
             if (!RegExp(r'\S+@\S+\.\S+').hasMatch(value))
               return 'invalid_email'.tr;
@@ -486,7 +457,6 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
           ),
           child: Container(
             width: double.infinity,
-
             padding: EdgeInsets.symmetric(vertical: 18),
             child: Text(
               'save'.tr.toUpperCase(),
@@ -498,7 +468,6 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
                 letterSpacing: 1,
               ),
             ),
-
           ),
         ),
       ),
@@ -508,7 +477,6 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
   Widget _buildCancelButton() {
     return TextButton(
       onPressed: () => Navigator.pop(context),
-
       child: Text('cancel'.tr,
           style: TextStyle(
               color: Colors.grey[600],
@@ -535,7 +503,6 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
   // --- BU BUTON, DOĞRU _logout METODUNU ÇAĞIRIYOR ---
   Widget _buildLogoutButton() {
     return TextButton(
-
       onPressed: () {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
@@ -545,24 +512,20 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
         );
         Navigator.pop(context);
       },
-      
       style: TextButton.styleFrom(
         foregroundColor: Theme.of(context).colorScheme.error,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8.0)),
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
-        children: const [
+        children: [
           Icon(Icons.logout, size: 24),
           SizedBox(width: 16),
-
           Text(
             'log_out'.tr,
             style: TextStyle(fontSize: 20, fontWeight: FontWeight.w600),
           ),
-
         ],
       ),
     );
@@ -582,7 +545,6 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
-
         children: [
           Icon(Icons.lock_outline, size: 24),
           SizedBox(width: 8),
@@ -594,13 +556,4 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
       ),
     );
   }
-
-  @override
-  void dispose() {
-    _nameController.dispose();
-    _emailController.dispose();
-    _bioController.dispose();
-    super.dispose();
-  }
-
 }

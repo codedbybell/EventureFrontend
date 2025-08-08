@@ -1,5 +1,7 @@
 // lib/screens/splash_screen.dart
 
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
 import 'dart:async';
 import '../services/token_service.dart'; // Token servisimizi import ediyoruz
@@ -31,7 +33,7 @@ class _SplashScreenState extends State<SplashScreen> {
     // Widget'ın hala ekranda olduğundan emin oluyoruz.
     // (Asenkron işlem sonrası widget ağacından kaldırılmış olabilir)
     if (!mounted) return;
-
+    log('Access Token: $accessToken'); // Token'ı logluyoruz
     // Token varsa ana sayfaya, yoksa giriş ekranına yönlendir.
     if (accessToken != null) {
       // pushReplacementNamed kullanarak splash screen'i yığından kaldırıyoruz,
