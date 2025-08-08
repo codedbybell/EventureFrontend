@@ -1,9 +1,11 @@
+import 'package:eventure/localization/localization_service.dart';
 import 'package:eventure/screens/change_pass.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
+import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
 import 'dart:io';
-import 'dart:math' as math;
+
+import 'package:eventure/widgets/language_toggle_switch.dart';
 
 class ProfileEditScreen extends StatefulWidget {
   @override
@@ -14,11 +16,7 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
   final _formKey = GlobalKey<FormState>();
   final _nameController = TextEditingController();
   final _emailController = TextEditingController();
-  final _phoneController = TextEditingController();
   final _bioController = TextEditingController();
-  final _currentpasswordController = TextEditingController();
-  final _confirmpasswordController = TextEditingController();
-  final _newPasswordController = TextEditingController();
 
   File? _profileImage;
   final ImagePicker _picker = ImagePicker();
@@ -26,18 +24,19 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
   @override
   void initState() {
     super.initState();
-    // Mevcut kullanıcı bilgilerini yükle
     _loadUserData();
   }
 
   void _loadUserData() {
-    // Burada mevcut kullanıcı bilgilerini yükleyebilirsiniz
     _nameController.text = "Ahmet Yılmaz";
     _emailController.text = "ahmet@example.com";
-    _phoneController.text = "+90 555 123 45 67";
-    _bioController.text = "Merhaba! Ben bir etkinlik tutkunuyum.";
-    _confirmpasswordController.text = "confirm_password";
-    _currentpasswordController.text = "current_password";
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) {
+        setState(() {
+          _bioController.text = "Hello! I'm an event enthusiast.";
+        });
+      }
+    });
   }
 
   Future<void> _pickImage() async {
@@ -62,7 +61,7 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
               ),
               SizedBox(height: 20),
               Text(
-                'Profil Fotoğrafını Değiştir',
+                'profile_photo_edit'.tr,
                 style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
               ),
               SizedBox(height: 20),
@@ -71,17 +70,17 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
                 children: [
                   _buildImageOption(
                     icon: Icons.camera_alt,
-                    label: 'Kamera',
+                    label: 'camera'.tr,
                     onTap: () => _getImage(ImageSource.camera),
                   ),
                   _buildImageOption(
                     icon: Icons.photo_library,
-                    label: 'Galeri',
+                    label: 'gallery'.tr,
                     onTap: () => _getImage(ImageSource.gallery),
                   ),
                   _buildImageOption(
                     icon: Icons.delete,
-                    label: 'Kaldır',
+                    label: 'remove'.tr,
                     onTap: () => _removeImage(),
                   ),
                 ],
@@ -151,10 +150,9 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
 
   void _saveProfile() {
     if (_formKey.currentState!.validate()) {
-      // Profil kaydetme işlemleri
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('Profile updated successfully!'),
+          content: Text('profile_updated_successfully'.tr),
           backgroundColor: Color(0xFF4ECDC4),
           behavior: SnackBarBehavior.floating,
           shape: RoundedRectangleBorder(
@@ -162,8 +160,6 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
           ),
         ),
       );
-
-      // Geri dön
       Navigator.pop(context);
     }
   }
@@ -171,6 +167,20 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      appBar: AppBar(
+        title: Text('edit_profile'.tr),
+        backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+        foregroundColor: Theme.of(context).brightness == Brightness.dark
+            ? Colors.white
+            : Colors.black,
+        elevation: 0.5,
+        actions: [
+          Padding(
+            padding: const EdgeInsets.only(right: 12.0, top: 8.0, bottom: 8.0),
+            child: const LanguageToggleSwitch(),
+          ),
+        ],
+      ),
       body: Column(
         children: [
           Expanded(
@@ -181,20 +191,22 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
                   key: _formKey,
                   child: Column(
                     children: [
-                      // Logo ve Başlık
-                      SizedBox(height: 40),
-
-                      // Profil Fotoğrafı
+                      SizedBox(height: 20),
                       _buildProfilePhoto(),
-
                       SizedBox(height: 40),
-
-                      // Form Alanları
                       _buildFormFields(),
+                      _buildInputField(
+                        controller: _bioController,
+                        label: 'about_me'.tr,
+                        icon: Icons.info_outline,
+                        maxLines: 3,
+                        maxLength: 150,
+                      ),
 
-                      _buildChangePasswordTextButton(),
-
+                      // --- YENİDEN EKLENEN BUTONLAR ---
                       SizedBox(height: 30),
+                      _buildChangePasswordTextButton(),
+                      SizedBox(height: 10),
                       _buildLogoutButton(),
                       SizedBox(height: 20),
                     ],
@@ -211,7 +223,6 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
                 _buildSaveButton(),
                 SizedBox(height: 10),
                 _buildCancelButton(),
-                SizedBox(height: 10),
               ],
             ),
           ),
@@ -283,7 +294,7 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
         GestureDetector(
           onTap: _pickImage,
           child: Text(
-            'Change Profile Photo',
+            'profile_photo_edit'.tr,
             style: TextStyle(
               color: Color(0xFF4ECDC4),
               fontSize: 14,
@@ -300,37 +311,21 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
       children: [
         _buildInputField(
           controller: _nameController,
-          label: 'Name Surname',
+          label: 'full_name'.tr,
           icon: Icons.person_outline,
-          validator: (value) {
-            if (value == null || value.isEmpty) {
-              return 'Ad soyad gerekli';
-            }
-            return null;
-          },
+          validator: (value) =>
+              (value == null || value.isEmpty) ? 'name_required'.tr : null,
         ),
-
         _buildInputField(
           controller: _emailController,
-          label: 'E-mail',
+          label: 'email_address'.tr,
           icon: Icons.email_outlined,
           keyboardType: TextInputType.emailAddress,
           validator: (value) {
-            if (value == null || value.isEmpty) {
-              return 'E-posta gerekli';
-            }
-            if (!value.contains('@')) {
-              return 'Geçerli bir e-posta girin';
-            }
+            if (value == null || value.isEmpty) return 'email_required'.tr;
+            if (!GetUtils.isEmail(value)) return 'invalid_email'.tr;
             return null;
           },
-        ),
-        _buildInputField(
-          controller: _bioController,
-          label: 'About Me',
-          icon: Icons.info_outline,
-          maxLines: 3,
-          maxLength: 150,
         ),
       ],
     );
@@ -411,7 +406,7 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
             width: double.infinity,
             padding: EdgeInsets.symmetric(vertical: 18),
             child: Text(
-              'SAVE',
+              'save'.tr.toUpperCase(),
               textAlign: TextAlign.center,
               style: TextStyle(
                 color: Colors.white,
@@ -430,7 +425,7 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
     return TextButton(
       onPressed: () => Navigator.pop(context),
       child: Text(
-        'Cancel',
+        'cancel'.tr,
         style: TextStyle(
           color: Colors.grey[600],
           fontSize: 16,
@@ -442,23 +437,22 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
 
   Widget _buildLogoutButton() {
     final theme = Theme.of(context);
-    final Color secondaryColor = theme.colorScheme.secondary;
+    final Color secondaryColor =
+        Color(0xFF56C1C2); 
 
     return TextButton(
       onPressed: () {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Çıkış yapıldı!'),
-            backgroundColor: Colors.red,
+            content: Text('logged_out_message'.tr),
+            backgroundColor: Color(0xFF56C1C2),
           ),
         );
         Navigator.pop(context);
       },
       style: TextButton.styleFrom(
         foregroundColor: secondaryColor,
-
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8.0)),
-
         padding: EdgeInsets.symmetric(horizontal: 16, vertical: 10),
       ),
       child: Row(
@@ -467,7 +461,7 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
           Icon(Icons.logout, size: 24),
           SizedBox(width: 16),
           Text(
-            'Log Out',
+            'log_out'.tr,
             style: TextStyle(fontSize: 20, fontWeight: FontWeight.w600),
           ),
         ],
@@ -484,17 +478,16 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
         );
       },
       style: TextButton.styleFrom(
-        // Yazı ve ikon rengini temanızdaki birincil (primary) renkten alalım.
         foregroundColor: Theme.of(context).colorScheme.primary,
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
-        children: const [
-          Icon(Icons.lock_outline, size: 24), // Kilit ikonu
+        children: [
+          Icon(Icons.lock_outline, size: 24),
           SizedBox(width: 8),
           Text(
-            'Change Password',
+            'change_password'.tr,
             style: TextStyle(fontSize: 20, fontWeight: FontWeight.w600),
           ),
         ],
@@ -506,7 +499,6 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
   void dispose() {
     _nameController.dispose();
     _emailController.dispose();
-    _phoneController.dispose();
     _bioController.dispose();
     super.dispose();
   }

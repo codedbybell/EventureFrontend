@@ -1,18 +1,19 @@
-// lib/screens/home_page.dart (İSTEKLERİNİZ EKLENMİŞ GÜNCEL HALİ)
+// lib/screens/home_page.dart
 
 import 'dart:async';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart'; // GETX KÜTÜPHANESİNİ IMPORT EDİN
 
-// İSTEDİĞİNİZ YENİ SAYFALAR İÇİN IMPORT'LAR EKLENDİ
 import 'package:eventure/screens/all_categories_page.dart';
 import 'package:eventure/screens/all_popular_events_page.dart';
-
 import 'package:eventure/screens/category_events_page.dart';
 import 'package:eventure/screens/event_detail_page.dart';
 import 'package:eventure/screens/history_screen.dart';
 import 'package:eventure/screens/profil_edit_screen.dart';
 
-// --- Veri Modelleri (Değişiklik yok) ---
+// --- Veri Modelleri ---
+// allEvents, upcomingEvents, popularEvents listelerinde değişiklik yok.
+// Bunlar dinamik veri olduğu için çevrilmez.
 final List<Map<String, dynamic>> allEvents = [
   // ... (Veri listesi olduğu gibi kalacak)
   {
@@ -142,26 +143,32 @@ final List<Map<String, dynamic>> popularEvents = allEvents
       ].contains(e['title']),
     )
     .toList();
+
+// GÜNCELLENDİ: Kategori listesi artık çeviri anahtarlarını içeriyor.
 final List<Map<String, String>> eventCategories = [
   {
     'image':
         'https://images.unsplash.com/photo-1524368535928-5b5e00ddc76b?w=800&auto=format&fit=crop',
-    'label': 'Concerts',
+    'key': 'concerts', // Çeviri için anahtar
+    'filter': 'Concerts', // Filtreleme için orijinal değer
   },
   {
     'image':
         'https://images.unsplash.com/photo-1574267432553-4b4628081c31?w=800&auto=format&fit=crop',
-    'label': 'Cinema',
+    'key': 'cinema',
+    'filter': 'Cinema',
   },
   {
     'image':
         'https://images.unsplash.com/photo-1501555088652-021faa106b9b?w=800&auto=format&fit=crop',
-    'label': 'Nature',
+    'key': 'nature',
+    'filter': 'Nature',
   },
   {
     'image':
         'https://images.unsplash.com/photo-1543269865-cbf427effbad?w=800&auto=format&fit=crop',
-    'label': 'Conferences',
+    'key': 'conferences',
+    'filter': 'Conferences',
   },
 ];
 
@@ -212,7 +219,7 @@ class _EcommerceHomePageState extends State<EcommerceHomePage> {
     super.dispose();
   }
 
-  // --- Fonksiyonlar ve Metotlar (YENİ METOTLAR EKLENDİ) ---
+  // --- Fonksiyonlar ve Metotlar ---
   void _updateSearchResults(String query) {
     setState(() {
       _searchQuery = query;
@@ -257,7 +264,6 @@ class _EcommerceHomePageState extends State<EcommerceHomePage> {
     );
   }
 
-  // YENİ EKLENDİ: "TÜMÜNÜ GÖR" İÇİN NAVİGASYON FONKSİYONLARI
   void _navigateToAllCategories() {
     Navigator.push(
       context,
@@ -272,7 +278,7 @@ class _EcommerceHomePageState extends State<EcommerceHomePage> {
     );
   }
 
-  // --- Build Metotları (Değişiklik yok) ---
+  // --- Build Metotları ---
   @override
   Widget build(BuildContext context) {
     final List<Widget> pages = [
@@ -305,15 +311,16 @@ class _EcommerceHomePageState extends State<EcommerceHomePage> {
           type: BottomNavigationBarType.fixed,
           showSelectedLabels: false,
           showUnselectedLabels: false,
-          items: const [
-            BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Home'),
+          // ÇEVRİLDİ: Bottom navigation bar etiketleri çevrildi.
+          items: [
+            BottomNavigationBarItem(icon: Icon(Icons.home), label: 'home'.tr),
             BottomNavigationBarItem(
               icon: Icon(Icons.history),
-              label: 'History',
+              label: 'history'.tr,
             ),
             BottomNavigationBarItem(
               icon: Icon(Icons.person_outline),
-              label: 'Profile',
+              label: 'profile'.tr,
             ),
           ],
         ),
@@ -337,30 +344,30 @@ class _EcommerceHomePageState extends State<EcommerceHomePage> {
     );
   }
 
-  // _buildHomePageContent GÜNCELLENDİ
   Widget _buildHomePageContent() {
     return SingleChildScrollView(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           const SizedBox(height: 24),
-          _buildSectionHeader(context, title: "Upcoming Events"),
+          // ÇEVRİLDİ
+          _buildSectionHeader(context, title: 'upcoming_events'.tr),
           _buildUpcomingEventsSlider(context),
           const SizedBox(height: 24),
-          // "onSeeAllTapped" fonksiyonu eklendi
           _buildSectionHeader(
             context,
-            title: "Events",
+            // ÇEVRİLDİ
+            title: 'categories'.tr,
             showArrow: true,
             onSeeAllTapped: _navigateToAllCategories,
           ),
           const SizedBox(height: 16),
           _buildEventCategories(context),
           const SizedBox(height: 24),
-          // "onSeeAllTapped" fonksiyonu eklendi
           _buildSectionHeader(
             context,
-            title: "Popular Events",
+            // ÇEVRİLDİ
+            title: 'popular_events'.tr,
             showArrow: true,
             onSeeAllTapped: _navigateToAllPopularEvents,
           ),
@@ -374,7 +381,10 @@ class _EcommerceHomePageState extends State<EcommerceHomePage> {
 
   Widget _buildSearchResultsList() {
     if (_searchResults.isEmpty) {
-      return Center(child: Text("No results found for '$_searchQuery'"));
+      // ÇEVRİLDİ: Parametreli çeviri kullanıldı.
+      return Center(
+        child: Text('no_results_found'.trParams({'query': _searchQuery})),
+      );
     }
     return ListView.builder(
       padding: const EdgeInsets.all(12.0),
@@ -393,7 +403,8 @@ class _EcommerceHomePageState extends State<EcommerceHomePage> {
         controller: _searchController,
         onChanged: _updateSearchResults,
         decoration: InputDecoration(
-          hintText: 'Search for events, artists...',
+          // ÇEVRİLDİ
+          hintText: 'search_hint'.tr,
           prefixIcon: const Icon(Icons.search),
           suffixIcon: _searchQuery.isNotEmpty
               ? IconButton(
@@ -415,6 +426,7 @@ class _EcommerceHomePageState extends State<EcommerceHomePage> {
     BuildContext context,
     Map<String, dynamic> event,
   ) {
+    // Bu widget içinde çeviriye gerek yok, çünkü dinamik veri gösteriyor.
     return GestureDetector(
       onTap: () => _navigateToDetail(event),
       child: Card(
@@ -468,7 +480,6 @@ class _EcommerceHomePageState extends State<EcommerceHomePage> {
     );
   }
 
-  // _buildSectionHeader GÜNCELLENDİ
   Widget _buildSectionHeader(
     BuildContext context, {
     required String title,
@@ -480,6 +491,7 @@ class _EcommerceHomePageState extends State<EcommerceHomePage> {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
+          // GÜNCELLENDİ: Artık başlık çevrilmiş olarak geliyor.
           Text(title, style: Theme.of(context).textTheme.titleLarge),
           if (showArrow && onSeeAllTapped != null)
             InkWell(
@@ -490,7 +502,6 @@ class _EcommerceHomePageState extends State<EcommerceHomePage> {
                 child: Icon(Icons.arrow_forward_ios, size: 16),
               ),
             ),
-          // Sadece ok gösterilmesi isteniyorsa (tıklama fonksiyonu yoksa)
           if (showArrow && onSeeAllTapped == null)
             const Padding(
               padding: EdgeInsets.all(8.0),
@@ -502,6 +513,7 @@ class _EcommerceHomePageState extends State<EcommerceHomePage> {
   }
 
   Widget _buildUpcomingEventsSlider(BuildContext context) {
+    // Bu widget içinde çeviriye gerek yok, çünkü dinamik veri gösteriyor.
     return Column(
       children: [
         SizedBox(
@@ -567,7 +579,8 @@ class _EcommerceHomePageState extends State<EcommerceHomePage> {
         itemBuilder: (context, index) {
           final category = eventCategories[index];
           return GestureDetector(
-            onTap: () => _navigateToCategoryPage(category['label']!),
+            // GÜNCELLENDİ: Filtreleme için orijinal değeri kullanıyoruz.
+            onTap: () => _navigateToCategoryPage(category['filter']!),
             child: Container(
               width: 80,
               margin: const EdgeInsets.only(right: 16),
@@ -578,8 +591,9 @@ class _EcommerceHomePageState extends State<EcommerceHomePage> {
                     backgroundImage: NetworkImage(category['image']!),
                   ),
                   const SizedBox(height: 8),
+                  // GÜNCELLENDİ: Ekranda göstermek için çeviri anahtarını kullanıyoruz.
                   Text(
-                    category['label']!,
+                    category['key']!.tr,
                     style: Theme.of(context).textTheme.bodyMedium,
                     overflow: TextOverflow.ellipsis,
                   ),
@@ -593,6 +607,7 @@ class _EcommerceHomePageState extends State<EcommerceHomePage> {
   }
 
   Widget _buildPopularEvents(BuildContext context) {
+    // Bu widget içinde çeviriye gerek yok, çünkü dinamik veri gösteriyor.
     return SizedBox(
       height: 220,
       child: ListView.builder(
