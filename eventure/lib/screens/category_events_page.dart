@@ -1,23 +1,35 @@
-// lib/screens/category_events_page.dart (YENİ DOSYA)
-
-import 'package:eventure/screens/event_detail_page.dart';
 import 'package:flutter/material.dart';
-import 'package:eventure/screens/home_page.dart'; // `allEvents` listesine erişmek için import ediyoruz
+import '../models/event_model.dart';
+import '../services/event_services.dart';
+import 'event_detail_page.dart';
 
-class CategoryEventsPage extends StatelessWidget {
+class CategoryEventsPage extends StatefulWidget {
   final String categoryName;
 
   const CategoryEventsPage({super.key, required this.categoryName});
 
   @override
-  Widget build(BuildContext context) {
-    // Ana 'allEvents' listesinden bu kategoriye ait olanları filtrele
-    final List<Map<String, dynamic>> filteredEvents = allEvents
-        .where((event) => event['category'] == categoryName)
-        .toList();
+  State<CategoryEventsPage> createState() => _CategoryEventsPageState();
+}
 
+class _CategoryEventsPageState extends State<CategoryEventsPage> {
+  late Future<List<Event>> _categoryEventsFuture;
+
+  @override
+  void initState() {
+    super.initState();
+    _categoryEventsFuture = EventService().fetchEventsByCategory(
+      widget.categoryName,
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+
+        title: Text(widget.categoryName),
+        
         // 1. Arka planı şeffaf yapıp gölgeyi kaldırıyoruz.
         backgroundColor: Colors.transparent,
         elevation: 0,
@@ -63,30 +75,47 @@ class CategoryEventsPage extends StatelessWidget {
         // Kendi 'leading' widget'ımızı eklediğimiz için Flutter'ın
         // otomatik olarak bir tane eklemesini engelliyoruz.
         automaticallyImplyLeading: false,
+
       ),
-      body: filteredEvents.isEmpty
-          ? const Center(
+      body: FutureBuilder<List<Event>>(
+        future: _categoryEventsFuture,
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return const Center(child: CircularProgressIndicator());
+          } else if (snapshot.hasError) {
+            return Center(
+              child: Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: Text(
+                  'Etkinlikler yüklenemedi. Lütfen tekrar deneyin.\nHata: ${snapshot.error}',
+                  textAlign: TextAlign.center,
+                ),
+              ),
+            );
+          } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+            return const Center(
               child: Text(
-                'No events found in this category.',
+                'Bu kategoride etkinlik bulunamadı.',
                 style: TextStyle(fontSize: 16),
               ),
-            )
-          : ListView.builder(
+            );
+          } else {
+            final filteredEvents = snapshot.data!;
+            return ListView.builder(
               padding: const EdgeInsets.all(12.0),
               itemCount: filteredEvents.length,
               itemBuilder: (context, index) {
                 final event = filteredEvents[index];
                 return _buildEventPreviewCard(context, event);
               },
-            ),
+            );
+          }
+        },
+      ),
     );
   }
 
-  // Etkinlik önizleme kartını oluşturan widget
-  Widget _buildEventPreviewCard(
-    BuildContext context,
-    Map<String, dynamic> event,
-  ) {
+  Widget _buildEventPreviewCard(BuildContext context, Event event) {
     return GestureDetector(
       onTap: () {
         Navigator.push(
@@ -98,8 +127,7 @@ class CategoryEventsPage extends StatelessWidget {
       },
       child: Card(
         margin: const EdgeInsets.only(bottom: 16.0),
-        clipBehavior:
-            Clip.antiAlias, // Resmin kartın köşelerinden taşmasını engeller
+        clipBehavior: Clip.antiAlias,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
         elevation: 3,
         child: Row(
@@ -107,21 +135,16 @@ class CategoryEventsPage extends StatelessWidget {
           children: [
             // Resim
             Image.network(
-              event['image'],
+              event.image,
               width: 120,
               height: 120,
               fit: BoxFit.cover,
-              errorBuilder: (context, error, stackTrace) {
-                return Container(
-                  width: 120,
-                  height: 120,
-                  color: Colors.grey[300],
-                  child: Icon(
-                    Icons.image_not_supported,
-                    color: Colors.grey[600],
-                  ),
-                );
-              },
+              errorBuilder: (context, error, stackTrace) => Container(
+                width: 120,
+                height: 120,
+                color: Colors.grey[300],
+                child: Icon(Icons.image_not_supported, color: Colors.grey[600]),
+              ),
             ),
             // Detaylar
             Expanded(
@@ -131,7 +154,7 @@ class CategoryEventsPage extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      event['title'],
+                      event.title,
                       style: Theme.of(context).textTheme.titleMedium?.copyWith(
                         fontWeight: FontWeight.bold,
                       ),
@@ -142,13 +165,13 @@ class CategoryEventsPage extends StatelessWidget {
                     _buildInfoRow(
                       context,
                       Icons.calendar_today_outlined,
-                      event['date'],
+                      event.date,
                     ),
                     const SizedBox(height: 6),
                     _buildInfoRow(
                       context,
                       Icons.location_on_outlined,
-                      event['location'],
+                      event.location,
                     ),
                   ],
                 ),
@@ -160,6 +183,7 @@ class CategoryEventsPage extends StatelessWidget {
     );
   }
 
+  // Bu widget'ta değişiklik yok.
   Widget _buildInfoRow(BuildContext context, IconData icon, String text) {
     return Row(
       children: [
