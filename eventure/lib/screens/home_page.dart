@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart'; // GETX KÜTÜPHANESİNİ IMPORT EDİN
 
 import 'package:eventure/screens/all_categories_page.dart';
 import 'package:eventure/screens/all_popular_events_page.dart';
@@ -7,9 +8,11 @@ import 'package:eventure/screens/category_events_page.dart';
 import 'package:eventure/screens/event_detail_page.dart';
 import 'package:eventure/screens/history_screen.dart';
 import 'package:eventure/screens/profil_edit_screen.dart';
+
 import '../models/event_model.dart';
 import '../services/event_services.dart';
 import '../models/category_model.dart';
+
 
 // --- Ana Sayfa Widget'ı ---
 class EcommerceHomePage extends StatefulWidget {
@@ -163,15 +166,16 @@ class _EcommerceHomePageState extends State<EcommerceHomePage> {
           type: BottomNavigationBarType.fixed,
           showSelectedLabels: false,
           showUnselectedLabels: false,
-          items: const [
-            BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Home'),
+          // ÇEVRİLDİ: Bottom navigation bar etiketleri çevrildi.
+          items: [
+            BottomNavigationBarItem(icon: Icon(Icons.home), label: 'home'.tr),
             BottomNavigationBarItem(
               icon: Icon(Icons.history),
-              label: 'History',
+              label: 'history'.tr,
             ),
             BottomNavigationBarItem(
               icon: Icon(Icons.person_outline),
-              label: 'Profile',
+              label: 'profile'.tr,
             ),
           ],
         ),
@@ -202,12 +206,15 @@ class _EcommerceHomePageState extends State<EcommerceHomePage> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           const SizedBox(height: 24),
-          _buildSectionHeader(context, title: "Upcoming Events"),
+          // ÇEVRİLDİ
+          _buildSectionHeader(context, title: 'upcoming_events'.tr),
           _buildUpcomingEventsSlider(context),
           const SizedBox(height: 24),
           _buildSectionHeader(
             context,
-            title: "Categories",
+
+            title: 'categories'.tr,
+
             showArrow: true,
             onSeeAllTapped: _navigateToAllCategories,
           ),
@@ -216,7 +223,8 @@ class _EcommerceHomePageState extends State<EcommerceHomePage> {
           const SizedBox(height: 24),
           _buildSectionHeader(
             context,
-            title: "Popular Events",
+            // ÇEVRİLDİ
+            title: 'popular_events'.tr,
             showArrow: true,
             onSeeAllTapped: _navigateToAllPopularEvents,
           ),
@@ -230,7 +238,10 @@ class _EcommerceHomePageState extends State<EcommerceHomePage> {
 
   Widget _buildSearchResultsList() {
     if (_searchResults.isEmpty) {
-      return Center(child: Text("No results found for '$_searchQuery'"));
+      // ÇEVRİLDİ: Parametreli çeviri kullanıldı.
+      return Center(
+        child: Text('no_results_found'.trParams({'query': _searchQuery})),
+      );
     }
     return ListView.builder(
       padding: const EdgeInsets.all(12.0),
@@ -250,7 +261,8 @@ class _EcommerceHomePageState extends State<EcommerceHomePage> {
         controller: _searchController,
         onChanged: _updateSearchResults,
         decoration: InputDecoration(
-          hintText: 'Search for events, artists...',
+          // ÇEVRİLDİ
+          hintText: 'search_hint'.tr,
           prefixIcon: const Icon(Icons.search),
           suffixIcon: _searchQuery.isNotEmpty
               ? IconButton(
@@ -269,7 +281,9 @@ class _EcommerceHomePageState extends State<EcommerceHomePage> {
     );
   }
 
+
   Widget _buildEventPreviewCard(BuildContext context, Event event) {
+
     return GestureDetector(
       onTap: () => _navigateToDetail(event),
       child: Card(
@@ -334,6 +348,7 @@ class _EcommerceHomePageState extends State<EcommerceHomePage> {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
+          // GÜNCELLENDİ: Artık başlık çevrilmiş olarak geliyor.
           Text(title, style: Theme.of(context).textTheme.titleLarge),
           if (showArrow && onSeeAllTapped != null)
             InkWell(
@@ -344,12 +359,14 @@ class _EcommerceHomePageState extends State<EcommerceHomePage> {
                 child: Icon(Icons.arrow_forward_ios, size: 16),
               ),
             ),
+
         ],
       ),
     );
   }
 
   Widget _buildUpcomingEventsSlider(BuildContext context) {
+
     return FutureBuilder<List<Event>>(
       future: _futureEvents,
       builder: (context, snapshot) {
@@ -400,6 +417,7 @@ class _EcommerceHomePageState extends State<EcommerceHomePage> {
                           fit: BoxFit.cover,
                         ),
                       ),
+
                     ),
                   );
                 },
@@ -430,6 +448,7 @@ class _EcommerceHomePageState extends State<EcommerceHomePage> {
   }
 
   Widget _buildEventCategories(BuildContext context) {
+
     return FutureBuilder<List<Category>>(
       future: _categoriesFuture,
       builder: (context, snapshot) {
@@ -492,6 +511,7 @@ class _EcommerceHomePageState extends State<EcommerceHomePage> {
   }
 
   Widget _buildPopularEvents(BuildContext context) {
+
     return FutureBuilder<List<Event>>(
       future: _futurePopularEvents,
       builder: (context, snapshot) {

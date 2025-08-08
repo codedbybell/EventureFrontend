@@ -1,5 +1,7 @@
-// lib/screens/profil_edit_screen.dart (ENTEGRE EDİLMİŞ VE TAM HALİ)
+import 'package:eventure/localization/localization_service.dart';
+import 'package:get/get.dart';
 
+import 'package:eventure/widgets/language_toggle_switch.dart';
 import 'package:eventure/main.dart';
 import 'package:eventure/screens/change_pass.dart';
 import 'package:flutter/material.dart';
@@ -8,6 +10,7 @@ import 'dart:io';
 import '../models/auth_models.dart';
 import '../services/auth_service.dart';
 import 'login_screen.dart';
+
 
 class ProfileEditScreen extends StatefulWidget {
   const ProfileEditScreen({
@@ -30,6 +33,7 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
   UserProfileModel? _currentUser;
   bool _isLoading = true;
 
+
   File? _profileImage;
   String? _networkImageUrl;
   final ImagePicker _picker = ImagePicker();
@@ -37,6 +41,7 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
   @override
   void initState() {
     super.initState();
+
     _fetchProfileData();
   }
 
@@ -126,6 +131,7 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
       // _isLoading'ı false yapmaya gerek kalmayabilir.
       if (mounted) setState(() => _isLoading = false);
     }
+
   }
 
   Future<void> _pickImage() async {
@@ -148,25 +154,32 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
                   borderRadius: BorderRadius.circular(2),
                 ),
               ),
+
               const SizedBox(height: 20),
-              const Text('Profil Fotoğrafını Değiştir',
+              const Text('profile_photo_edit'.tr,
                   style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
               const SizedBox(height: 20),
+
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: [
                   _buildImageOption(
-                      icon: Icons.camera_alt,
-                      label: 'Kamera',
-                      onTap: () => _getImage(ImageSource.camera)),
+
+                    icon: Icons.camera_alt,
+                    label: 'camera'.tr,
+                    onTap: () => _getImage(ImageSource.camera),
+                  ),
                   _buildImageOption(
-                      icon: Icons.photo_library,
-                      label: 'Galeri',
-                      onTap: () => _getImage(ImageSource.gallery)),
+                    icon: Icons.photo_library,
+                    label: 'gallery'.tr,
+                    onTap: () => _getImage(ImageSource.gallery),
+                  ),
                   _buildImageOption(
-                      icon: Icons.delete,
-                      label: 'Kaldır',
-                      onTap: () => _removeImage()),
+                    icon: Icons.delete,
+                    label: 'remove'.tr,
+                    onTap: () => _removeImage(),
+                  ),
+
                 ],
               ),
               const SizedBox(height: 20),
@@ -199,30 +212,51 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
     });
   }
 
+
+  void _saveProfile() {
+    if (_formKey.currentState!.validate()) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('profile_updated_successfully'.tr),
+          backgroundColor: Color(0xFF4ECDC4),
+          behavior: SnackBarBehavior.floating,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(10),
+          ),
+        ),
+      );
+      Navigator.pop(context);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       appBar: AppBar(
-        backgroundColor: Colors.transparent,
-        elevation: 0,
-        iconTheme:
-            IconThemeData(color: Theme.of(context).colorScheme.onBackground),
-        title: Text('Edit Profile',
-            style: TextStyle(
-                color: Theme.of(context).colorScheme.onBackground,
-                fontWeight: FontWeight.w600)),
-        centerTitle: true,
+        title: Text('edit_profile'.tr),
+        backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+        foregroundColor: Theme.of(context).brightness == Brightness.dark
+            ? Colors.white
+            : Colors.black,
+        elevation: 0.5,
+        actions: [
+          Padding(
+            padding: const EdgeInsets.only(right: 12.0, top: 8.0, bottom: 8.0),
+            child: const LanguageToggleSwitch(),
+          ),
+        ],
       ),
-      body: _isLoading
-          ? const Center(child: CircularProgressIndicator())
-          : SingleChildScrollView(
+      body: Column(
+        children: [
+          Expanded(
+            child: SingleChildScrollView(
               child: Padding(
                 padding: const EdgeInsets.all(20),
                 child: Form(
                   key: _formKey,
                   child: Column(
                     children: [
+
                       const SizedBox(height: 40),
                       _buildProfilePhoto(),
                       const SizedBox(height: 40),
@@ -252,6 +286,7 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
                   const SizedBox(height: 10),
                 ],
               ),
+
             ),
     );
   }
@@ -335,11 +370,15 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
         const SizedBox(height: 10),
         GestureDetector(
           onTap: _pickImage,
-          child: const Text('Change Profile Photo',
-              style: TextStyle(
-                  color: Color(0xFF4ECDC4),
-                  fontSize: 14,
-                  fontWeight: FontWeight.w500)),
+
+          child: Text(
+            'profile_photo_edit'.tr,
+            style: TextStyle(
+              color: Color(0xFF4ECDC4),
+              fontSize: 14,
+              fontWeight: FontWeight.w500,
+            ),
+          ),
         ),
       ],
     );
@@ -349,6 +388,7 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
     return Column(
       children: [
         _buildInputField(
+
           controller: _firstNameController,
           label: 'First Name',
           icon: Icons.person_outline,
@@ -361,25 +401,21 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
           icon: Icons.person_outline,
           validator: (value) =>
               value == null || value.isEmpty ? 'Last name is required' : null,
+
         ),
         _buildInputField(
           controller: _emailController,
-          label: 'E-mail',
+          label: 'email_address'.tr,
           icon: Icons.email_outlined,
           keyboardType: TextInputType.emailAddress,
           validator: (value) {
-            if (value == null || value.isEmpty) return 'E-mail is required';
+
+            if (value == null || value.isEmpty) return 'email_required'.tr;
             if (!RegExp(r'\S+@\S+\.\S+').hasMatch(value))
-              return 'Please enter a valid email';
+              return 'invalid_email'.tr;
+
             return null;
           },
-        ),
-        _buildInputField(
-          controller: _bioController,
-          label: 'About Me',
-          icon: Icons.info_outline,
-          maxLines: 3,
-          maxLength: 150,
         ),
       ],
     );
@@ -450,14 +486,19 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
           ),
           child: Container(
             width: double.infinity,
-            padding: const EdgeInsets.symmetric(vertical: 18),
-            child: const Text('SAVE',
-                textAlign: TextAlign.center,
-                style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 18,
-                    fontWeight: FontWeight.w600,
-                    letterSpacing: 1)),
+
+            padding: EdgeInsets.symmetric(vertical: 18),
+            child: Text(
+              'save'.tr.toUpperCase(),
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                color: Colors.white,
+                fontSize: 18,
+                fontWeight: FontWeight.w600,
+                letterSpacing: 1,
+              ),
+            ),
+
           ),
         ),
       ),
@@ -467,7 +508,8 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
   Widget _buildCancelButton() {
     return TextButton(
       onPressed: () => Navigator.pop(context),
-      child: Text('Cancel',
+
+      child: Text('cancel'.tr,
           style: TextStyle(
               color: Colors.grey[600],
               fontSize: 16,
@@ -493,20 +535,34 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
   // --- BU BUTON, DOĞRU _logout METODUNU ÇAĞIRIYOR ---
   Widget _buildLogoutButton() {
     return TextButton(
-      onPressed:
-          _logout, // onPressed, yukarıda tanımlanan _logout metoduna bağlandı.
+
+      onPressed: () {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('logged_out_message'.tr),
+            backgroundColor: Color(0xFF56C1C2),
+          ),
+        );
+        Navigator.pop(context);
+      },
+      
       style: TextButton.styleFrom(
         foregroundColor: Theme.of(context).colorScheme.error,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8.0)),
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: const [
           Icon(Icons.logout, size: 24),
           SizedBox(width: 16),
-          Text('Log Out',
-              style: TextStyle(fontSize: 20, fontWeight: FontWeight.w600)),
+
+          Text(
+            'log_out'.tr,
+            style: TextStyle(fontSize: 20, fontWeight: FontWeight.w600),
+          ),
+
         ],
       ),
     );
@@ -526,13 +582,25 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
-        children: const [
+
+        children: [
           Icon(Icons.lock_outline, size: 24),
           SizedBox(width: 8),
-          Text('Change Password',
-              style: TextStyle(fontSize: 20, fontWeight: FontWeight.w600)),
+          Text(
+            'change_password'.tr,
+            style: TextStyle(fontSize: 20, fontWeight: FontWeight.w600),
+          ),
         ],
       ),
     );
   }
+
+  @override
+  void dispose() {
+    _nameController.dispose();
+    _emailController.dispose();
+    _bioController.dispose();
+    super.dispose();
+  }
+
 }

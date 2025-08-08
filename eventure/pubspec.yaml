@@ -10,12 +10,15 @@ dependencies:
   flutter:
     sdk: flutter
 
-  # --- DİĞER TÜM PAKETLER BURAYA, HER BİRİ KENDİ SATIRINDA OLMALI ---
+  image_picker: ^1.0.4 
+  
+  # The following adds the Cupertino Icons font to your application.
+  # Use with the CupertinoIcons class for iOS style icons.
   cupertino_icons: ^1.0.8
-  http: ^1.1.0  # Sadece en güncel olanı tutuyoruz
-  image_picker: ^1.0.4
-  intl: ^0.18.1
-  shared_preferences: ^2.0.15
+  intl: ^0.20.2
+  http: ^1.1.0
+  get: ^4.7.2
+  shared_preferences: ^2.2.2
 
 
 dev_dependencies:
@@ -26,5 +29,6 @@ dev_dependencies:
 
 flutter:
   uses-material-design: true
+  generate: true
   assets:
     - assets/
