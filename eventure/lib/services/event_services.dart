@@ -11,14 +11,14 @@ class EventService {
   static String getBaseUrl() {
     // kIsWeb, web platformunda çalışıp çalışmadığını kontrol eder.
     if (kIsWeb) {
-      return 'http://192.168.1.80:8000'; // Web için /api olmadan
+      return 'http://192.168.1.86:8000'; // Web için /api olmadan
     }
     // Platform kontrolü sadece mobil veya masaüstü için yapılır.
     if (Platform.isAndroid) {
-      return 'http://192.168.1.80:8000'; // Android emülatörü için
+      return 'http://192.168.1.86:8000'; // Android emülatörü için
     }
     // iOS simülatörü ve diğer platformlar için.
-    return 'http://192.168.1.80:8000';
+    return 'http://192.168.1.86:8000';
   }
 
   // baseApiUrl, tüm API istekleri için /api/ ön ekini içerir.

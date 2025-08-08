@@ -8,7 +8,7 @@ import 'token_service.dart';
 
 class AuthService {
   // Kendi IP adresini yazdığından emin ol!
-  final String baseUrl = "http://192.168.1.80:8000/api/users";
+  final String baseUrl = "http://192.168.1.86:8000/api/users";
   final TokenService _tokenService = TokenService();
 
   /// Kullanıcı girişi yapar ve başarılı olursa token'ları kaydeder.

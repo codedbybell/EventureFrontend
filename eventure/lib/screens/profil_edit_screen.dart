@@ -301,7 +301,7 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
     } else if (_networkImageUrl != null && _networkImageUrl!.isNotEmpty) {
       backgroundImage = NetworkImage(_networkImageUrl!.startsWith('http')
           ? _networkImageUrl!
-          : 'http://192.168.1.80:8000$_networkImageUrl');
+          : 'http://192.168.1.86:8000$_networkImageUrl');
     }
 
     return Column(
