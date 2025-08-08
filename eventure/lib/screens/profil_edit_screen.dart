@@ -408,7 +408,7 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
         children: [
           Text(label,
               style: TextStyle(
-                  color: Colors.grey[600],
+                  color: Theme.of(context).colorScheme.onSurface,
                   fontSize: 16,
                   fontWeight: FontWeight.w500)),
           const SizedBox(height: 8),
@@ -514,7 +514,7 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
         _logout();
       },
       style: TextButton.styleFrom(
-        foregroundColor: Theme.of(context).colorScheme.error,
+        foregroundColor: Theme.of(context).colorScheme.secondary,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8.0)),
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
       ),
