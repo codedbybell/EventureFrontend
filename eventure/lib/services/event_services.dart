@@ -15,7 +15,7 @@ class EventService {
     }
     // Platform kontrolü sadece mobil veya masaüstü için yapılır.
     if (Platform.isAndroid) {
-      return 'http://10.0.2.2:8000'; // Android emülatörü için
+      return 'http://192.168.1.80:8000'; // Android emülatörü için
     }
     // iOS simülatörü ve diğer platformlar için.
     return 'http://192.168.1.80:8000';
