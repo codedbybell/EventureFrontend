@@ -87,9 +87,6 @@ class _EcommerceHomePageState extends State<EcommerceHomePage> {
               (event) =>
                   event.title.toLowerCase().contains(lowerCaseQuery) ||
                   event.description.toLowerCase().contains(lowerCaseQuery) ||
-                  event.organizerUsername.toLowerCase().contains(
-                        lowerCaseQuery,
-                      ) ||
                   event.categoryId.toString().toLowerCase().contains(
                         lowerCaseQuery,
                       ),

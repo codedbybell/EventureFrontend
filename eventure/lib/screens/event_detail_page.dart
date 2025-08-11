@@ -1,5 +1,3 @@
-// lib/screens/event_detail_page.dart
-
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:eventure/models/event_model.dart';
@@ -316,10 +314,6 @@ class _EventDetailPageState extends State<EventDetailPage> {
           const Divider(height: 24),
           _buildInfoRow(context,
               icon: Icons.location_on_outlined, text: event.location),
-          const Divider(height: 24),
-          _buildInfoRow(context,
-              icon: Icons.person_outline,
-              text: "by ${event.organizerUsername}"),
           if (event.capacity > 0) ...[
             const Divider(height: 24),
             _buildInfoRow(context,

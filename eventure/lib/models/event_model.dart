@@ -9,8 +9,6 @@ class Event {
   final String date;
   final String time;
   final int capacity;
-  final int organizerId;
-  final String organizerUsername;
   final int categoryId;
   final String categoryName;
   final int bookingCounts;
@@ -30,8 +28,6 @@ class Event {
     required this.date,
     required this.time,
     required this.capacity,
-    required this.organizerId,
-    required this.organizerUsername,
     required this.categoryId,
     required this.categoryName,
     required this.bookingCounts,
@@ -54,8 +50,6 @@ class Event {
       date: json['date'] ?? '',
       time: json['time'] ?? '',
       capacity: json['capacity'] ?? 0,
-      organizerId: json['organizer'] ?? 0,
-      organizerUsername: json['organizer_username'] ?? 'Unknown',
       categoryId: json['category'] ?? 0,
       categoryName: json['category_name'] ?? 'Uncategorized',
       bookingCounts: json['bookings_count'] ?? 0,
