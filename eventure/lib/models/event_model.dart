@@ -15,8 +15,11 @@ class Event {
   final String categoryName;
   final int bookingCounts;
   final List<String> tags;
-  // YENİ: Backend'den gelebilecek renk kodu için nullable bir alan.
   final String? color;
+
+  // <<< YENİ EKLENEN ALAN >>>
+  // Kullanıcının bu etkinliğe kayıtlı olup olmadığını tutar.
+  final bool isBooked;
 
   Event({
     required this.id,
@@ -33,7 +36,12 @@ class Event {
     required this.categoryName,
     required this.bookingCounts,
     required this.tags,
-    this.color, // Constructor'a ekledik.
+    this.color,
+
+    // <<< YENİ EKLENEN ALAN >>>
+    // Constructor'a ekledik ve varsayılan değer olarak 'false' verdik.
+    // Bu, backend'den bu bilgi gelmezse bile uygulamanın çökmemesini sağlar.
+    required this.isBooked,
   });
 
   factory Event.fromJson(Map<String, dynamic> json) {
@@ -52,11 +60,18 @@ class Event {
       categoryName: json['category_name'] ?? 'Uncategorized',
       bookingCounts: json['bookings_count'] ?? 0,
       tags: json['tags'] != null ? List<String>.from(json['tags']) : [],
-      // YENİ: JSON'dan 'color' alanını okuyoruz. Yoksa null olacak.
       color: json['color'],
+
+      // <<< YENİ EKLENEN ALAN >>>
+      // Backend'den gelen 'is_booked' alanını okuyoruz.
+      // Eğer bu alan JSON'da yoksa veya null ise, varsayılan olarak 'false' kabul ediyoruz.
+      isBooked: json['is_booked'] ?? false,
     );
   }
 
+  // toJson metodunun bu özellik için değiştirilmesine gerek yok,
+  // çünkü 'is_booked' durumunu frontend'den backend'e göndermiyoruz.
+  // Bu, sadece backend'den okuduğumuz bir bilgidir.
   Map<String, dynamic> toJson() {
     final Map<String, dynamic> data = {
       'title': title,
@@ -69,7 +84,6 @@ class Event {
       'category': categoryId,
       'tags': tags.join(','),
     };
-    // Eğer renk null değilse, JSON'a ekle.
     if (color != null) {
       data['color'] = color;
     }

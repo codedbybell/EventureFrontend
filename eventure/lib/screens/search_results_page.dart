@@ -81,7 +81,7 @@ class _SearchResultsPageState extends State<SearchResultsPage> {
         Navigator.push(
           context,
           MaterialPageRoute(
-            builder: (context) => EventDetailPage(event: event),
+            builder: (context) => EventDetailPage(eventId: event.id),
           ),
         );
       },
@@ -114,8 +114,8 @@ class _SearchResultsPageState extends State<SearchResultsPage> {
                     Text(
                       event.title,
                       style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                        fontWeight: FontWeight.bold,
-                      ),
+                            fontWeight: FontWeight.bold,
+                          ),
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,
                     ),

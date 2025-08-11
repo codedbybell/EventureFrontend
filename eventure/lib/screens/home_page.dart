@@ -13,7 +13,6 @@ import '../models/event_model.dart';
 import '../services/event_services.dart';
 import '../models/category_model.dart';
 
-
 // --- Ana Sayfa Widget'ı ---
 class EcommerceHomePage extends StatefulWidget {
   const EcommerceHomePage({super.key});
@@ -89,11 +88,11 @@ class _EcommerceHomePageState extends State<EcommerceHomePage> {
                   event.title.toLowerCase().contains(lowerCaseQuery) ||
                   event.description.toLowerCase().contains(lowerCaseQuery) ||
                   event.organizerUsername.toLowerCase().contains(
-                    lowerCaseQuery,
-                  ) ||
+                        lowerCaseQuery,
+                      ) ||
                   event.categoryId.toString().toLowerCase().contains(
-                    lowerCaseQuery,
-                  ),
+                        lowerCaseQuery,
+                      ),
             )
             .map((event) => event.toJson())
             .toList();
@@ -110,7 +109,10 @@ class _EcommerceHomePageState extends State<EcommerceHomePage> {
   void _navigateToDetail(Event event) {
     Navigator.push(
       context,
-      MaterialPageRoute(builder: (context) => EventDetailPage(event: event)),
+      MaterialPageRoute(
+        // <<< DEĞİŞİKLİK: 'event' yerine 'eventId' gönderiyoruz >>>
+        builder: (context) => EventDetailPage(eventId: event.id),
+      ),
     );
   }
 
@@ -212,9 +214,7 @@ class _EcommerceHomePageState extends State<EcommerceHomePage> {
           const SizedBox(height: 24),
           _buildSectionHeader(
             context,
-
             title: 'categories'.tr,
-
             showArrow: true,
             onSeeAllTapped: _navigateToAllCategories,
           ),
@@ -281,9 +281,7 @@ class _EcommerceHomePageState extends State<EcommerceHomePage> {
     );
   }
 
-
   Widget _buildEventPreviewCard(BuildContext context, Event event) {
-
     return GestureDetector(
       onTap: () => _navigateToDetail(event),
       child: Card(
@@ -315,8 +313,8 @@ class _EcommerceHomePageState extends State<EcommerceHomePage> {
                     Text(
                       event.title,
                       style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                        fontWeight: FontWeight.bold,
-                      ),
+                            fontWeight: FontWeight.bold,
+                          ),
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,
                     ),
@@ -359,14 +357,12 @@ class _EcommerceHomePageState extends State<EcommerceHomePage> {
                 child: Icon(Icons.arrow_forward_ios, size: 16),
               ),
             ),
-
         ],
       ),
     );
   }
 
   Widget _buildUpcomingEventsSlider(BuildContext context) {
-
     return FutureBuilder<List<Event>>(
       future: _futureEvents,
       builder: (context, snapshot) {
@@ -417,7 +413,6 @@ class _EcommerceHomePageState extends State<EcommerceHomePage> {
                           fit: BoxFit.cover,
                         ),
                       ),
-
                     ),
                   );
                 },
@@ -448,7 +443,6 @@ class _EcommerceHomePageState extends State<EcommerceHomePage> {
   }
 
   Widget _buildEventCategories(BuildContext context) {
-
     return FutureBuilder<List<Category>>(
       future: _categoriesFuture,
       builder: (context, snapshot) {
@@ -511,7 +505,6 @@ class _EcommerceHomePageState extends State<EcommerceHomePage> {
   }
 
   Widget _buildPopularEvents(BuildContext context) {
-
     return FutureBuilder<List<Event>>(
       future: _futurePopularEvents,
       builder: (context, snapshot) {

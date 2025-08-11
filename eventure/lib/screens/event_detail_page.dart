@@ -1,123 +1,232 @@
+// lib/screens/event_detail_page.dart
+
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart'; // Tarih formatlama için
+import 'package:intl/intl.dart';
 import 'package:eventure/models/event_model.dart';
+import 'package:eventure/services/event_services.dart';
 
-class EventDetailPage extends StatelessWidget {
-  final Event event;
+class EventDetailPage extends StatefulWidget {
+  final int eventId;
+  const EventDetailPage({super.key, required this.eventId});
 
-  const EventDetailPage({super.key, required this.event});
+  @override
+  State<EventDetailPage> createState() => _EventDetailPageState();
+}
+
+class _EventDetailPageState extends State<EventDetailPage> {
+  late Future<Event> _eventFuture;
+  final EventService _eventService = EventService();
+  bool _isProcessing =
+      false; // Butona tekrar tekrar basılmasını engellemek için
+
+  @override
+  void initState() {
+    super.initState();
+    _fetchEventDetails();
+  }
+
+  void _fetchEventDetails() {
+    if (!mounted) return;
+    setState(() {
+      _eventFuture = _eventService.fetchEventById(widget.eventId);
+    });
+  }
+
+  void _toggleBooking(Event currentEvent) async {
+    if (_isProcessing) return;
+
+    setState(() {
+      _isProcessing = true;
+    });
+
+    final action = currentEvent.isBooked ? "Cancelling" : "Booking";
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text('$action for ${currentEvent.title}...')),
+    );
+
+    try {
+      if (currentEvent.isBooked) {
+        await _eventService.unbookEvent(currentEvent.id);
+      } else {
+        await _eventService.bookEvent(currentEvent.id);
+      }
+
+      if (mounted) {
+        ScaffoldMessenger.of(context).removeCurrentSnackBar();
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('$action successful!'),
+            backgroundColor: Colors.green,
+          ),
+        );
+      }
+      _fetchEventDetails();
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).removeCurrentSnackBar();
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Error: ${e.toString()}'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isProcessing = false;
+        });
+      }
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
-    // Tema ve renk şemalarına kolay erişim
-    final theme = Theme.of(context);
-    final colorScheme = theme.colorScheme;
-    final textTheme = theme.textTheme;
+    return FutureBuilder<Event>(
+      future: _eventFuture,
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting &&
+            !_isProcessing) {
+          return const Scaffold(
+              body: Center(child: CircularProgressIndicator()));
+        }
 
-    // Tarih ve saati kullanıcı dostu formata çevirme
-    String formattedDate = _formatDate(event.date);
-    String formattedTime = _formatTime(context, event.time);
+        if (snapshot.hasError && !_isProcessing) {
+          return Scaffold(
+              appBar: AppBar(title: const Text("Error")),
+              body: Center(
+                  child: Text('Failed to load event: ${snapshot.error}')));
+        }
 
-    return Scaffold(
-      // Arka plan rengini temadan alıyoruz
-      backgroundColor: theme.scaffoldBackgroundColor,
+        if (!snapshot.hasData) {
+          return const Scaffold(
+              body: Center(child: CircularProgressIndicator()));
+        }
 
-      // Gövde içeriğinin AppBar'ın arkasına geçmesini sağlıyoruz
-      extendBodyBehindAppBar: true,
+        final event = snapshot.data!;
 
-      // AppBar (Şeffaf ve Gradyanlı)
-      appBar: AppBar(
-        backgroundColor: Colors.transparent,
-        elevation: 0,
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios, color: Colors.white),
-          onPressed: () => Navigator.of(context).pop(),
-        ),
-        title: Text(
-          'Event Detail',
-          style: textTheme.titleLarge?.copyWith(
-            fontWeight: FontWeight.bold,
-            color: Colors.white,
-          ),
-        ),
-        centerTitle: true,
-      ),
+        final theme = Theme.of(context);
+        final colorScheme = theme.colorScheme;
+        final textTheme = theme.textTheme;
 
-      // Sayfa Gövdesi
-      body: SingleChildScrollView(
-        padding: EdgeInsets.zero,
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // Resim ve Başlık Bölümü (Gradyanlı Arka Plan)
-            _buildHeaderSection(context, event, textTheme),
+        String formattedDate = _formatDate(event.date);
+        String formattedTime = _formatTime(context, event.time);
 
-            // İçerik Bölümü (Detaylar, Etiketler vb.)
-            Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const SizedBox(height: 16),
-
-                  // Etiketler (Tags)
-                  if (event.tags.isNotEmpty)
-                    Wrap(
-                      spacing: 8.0,
-                      runSpacing: 4.0,
-                      children: event.tags
-                          .map((tag) => Chip(
-                                label: Text(tag),
-                                backgroundColor: colorScheme.primaryContainer
-                                    .withOpacity(0.5),
-                                labelStyle: textTheme.bodyMedium?.copyWith(
-                                  color: colorScheme.onPrimaryContainer,
-                                ),
-                              ))
-                          .toList(),
-                    ),
-                  if (event.tags.isNotEmpty) const SizedBox(height: 24),
-
-                  // Açıklama
-                  Text(
-                    'About this event',
-                    style: textTheme.titleLarge
-                        ?.copyWith(fontWeight: FontWeight.bold),
-                  ),
-                  const SizedBox(height: 8),
-                  Text(
-                    event.description,
-                    style: textTheme.bodyLarge?.copyWith(
-                      color: colorScheme.onBackground.withOpacity(0.7),
-                      height: 1.5,
-                    ),
-                  ),
-                  const SizedBox(height: 24),
-
-                  // Bilgi Kutusu (Tarih, Saat, Lokasyon, Organizatör)
-                  _buildInfoBox(context, formattedDate, formattedTime, event,
-                      colorScheme),
-
-                  // Buton ile içerik arasına boşluk bırakmak için
-                  const SizedBox(
-                      height: 100), // Butonun içeriğin üzerine gelmemesi için
-                ],
-              ),
+        return Scaffold(
+          backgroundColor: theme.scaffoldBackgroundColor,
+          extendBodyBehindAppBar: true,
+          appBar: AppBar(
+            backgroundColor: Colors.transparent,
+            elevation: 0,
+            leading: IconButton(
+              icon: const Icon(Icons.arrow_back_ios, color: Colors.white),
+              onPressed: () => Navigator.of(context).pop(),
             ),
-          ],
-        ),
-      ),
-
-      // --- EKLENEN KISIM: EKRANIN ALTINA SABİTLENMİŞ BUTON ---
-      bottomNavigationBar: Padding(
-        // Kenar boşlukları ile butonu daha estetik hale getiriyoruz
-        padding: const EdgeInsets.fromLTRB(16, 8, 16, 24),
-        child: _buildGradientButton(context),
-      ),
+            title: Text('Event Detail',
+                style: textTheme.titleLarge?.copyWith(
+                    fontWeight: FontWeight.bold, color: Colors.white)),
+            centerTitle: true,
+          ),
+          body: SingleChildScrollView(
+            padding: EdgeInsets.zero,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                _buildHeaderSection(context, event, textTheme),
+                Padding(
+                  padding: const EdgeInsets.all(16.0),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const SizedBox(height: 16),
+                      if (event.tags.isNotEmpty)
+                        Wrap(
+                          spacing: 8.0,
+                          runSpacing: 4.0,
+                          children: event.tags
+                              .map((tag) => Chip(
+                                  label: Text(tag),
+                                  backgroundColor: colorScheme.primaryContainer
+                                      .withOpacity(0.5),
+                                  labelStyle: textTheme.bodyMedium?.copyWith(
+                                      color: colorScheme.onPrimaryContainer)))
+                              .toList(),
+                        ),
+                      if (event.tags.isNotEmpty) const SizedBox(height: 24),
+                      Text('About this event',
+                          style: textTheme.titleLarge
+                              ?.copyWith(fontWeight: FontWeight.bold)),
+                      const SizedBox(height: 8),
+                      Text(event.description,
+                          style: textTheme.bodyLarge?.copyWith(
+                              color: colorScheme.onBackground.withOpacity(0.7),
+                              height: 1.5)),
+                      const SizedBox(height: 24),
+                      _buildInfoBox(context, formattedDate, formattedTime,
+                          event, colorScheme),
+                      const SizedBox(height: 100),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+          bottomNavigationBar: Padding(
+            padding: const EdgeInsets.fromLTRB(16, 8, 16, 24),
+            child: _buildDynamicBookingButton(context, event),
+          ),
+        );
+      },
     );
   }
 
   // --- Yardımcı Widget'lar ---
+
+  Widget _buildDynamicBookingButton(BuildContext context, Event event) {
+    final bool isBooked = event.isBooked;
+    final String buttonText = isBooked ? "Cancel Booking" : "Book Now";
+    final Gradient buttonGradient = isBooked
+        ? const LinearGradient(colors: [
+            Color.fromARGB(255, 244, 91, 80),
+            Color.fromARGB(255, 222, 63, 52)
+          ])
+        : const LinearGradient(colors: [Color(0xFFFF6B9D), Color(0xFF4ECDC4)]);
+
+    return ElevatedButton(
+      onPressed: _isProcessing ? null : () => _toggleBooking(event),
+      style: ElevatedButton.styleFrom(
+          padding: EdgeInsets.zero,
+          shape:
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(25)),
+          elevation: 5,
+          maximumSize: const Size(double.infinity, 60),
+          shadowColor: (isBooked ? Colors.red : const Color(0xFFFF6B9D))
+              .withOpacity(0.5)),
+      child: Ink(
+        decoration: BoxDecoration(
+          gradient: buttonGradient,
+          borderRadius: BorderRadius.circular(25),
+        ),
+        child: Container(
+          padding: const EdgeInsets.symmetric(vertical: 16),
+          alignment: Alignment.center,
+          child: _isProcessing
+              ? const SizedBox(
+                  width: 24,
+                  height: 24,
+                  child: CircularProgressIndicator(
+                      color: Colors.white, strokeWidth: 3))
+              : Text(
+                  buttonText,
+                  style: const TextStyle(
+                      color: Colors.white,
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold),
+                ),
+        ),
+      ),
+    );
+  }
 
   Widget _buildHeaderSection(
       BuildContext context, Event event, TextTheme textTheme) {
@@ -213,61 +322,17 @@ class EventDetailPage extends StatelessWidget {
               text: "by ${event.organizerUsername}"),
           if (event.capacity > 0) ...[
             const Divider(height: 24),
-            _buildInfoRow(
-              context,
-              icon: Icons.people_outline,
-              text: '${event.bookingCounts} / ${event.capacity} Booked',
-            ),
+            _buildInfoRow(context,
+                icon: Icons.people_outline,
+                text: '${event.bookingCounts} / ${event.capacity} Booked'),
           ],
         ],
       ),
     );
   }
 
-  Widget _buildGradientButton(BuildContext context) {
-    return ElevatedButton(
-      onPressed: () {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Booking for ${event.title}...')),
-        );
-      },
-      style: ElevatedButton.styleFrom(
-          padding: EdgeInsets.zero,
-          shape:
-              RoundedRectangleBorder(borderRadius: BorderRadius.circular(25)),
-          elevation: 5,
-          maximumSize: const Size(double.infinity, 60),
-          shadowColor: const Color(0xFFFF6B9D).withOpacity(0.5)),
-      child: Ink(
-        decoration: BoxDecoration(
-          gradient: const LinearGradient(
-            colors: [Color(0xFFFF6B9D), Color(0xFF4ECDC4)],
-            begin: Alignment.centerLeft,
-            end: Alignment.centerRight,
-          ),
-          borderRadius: BorderRadius.circular(25),
-        ),
-        child: Container(
-          padding: const EdgeInsets.symmetric(vertical: 16),
-          alignment: Alignment.center,
-          child: const Text(
-            "Book Now",
-            style: TextStyle(
-              color: Colors.white,
-              fontSize: 18,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildInfoRow(
-    BuildContext context, {
-    required IconData icon,
-    required String text,
-  }) {
+  Widget _buildInfoRow(BuildContext context,
+      {required IconData icon, required String text}) {
     final theme = Theme.of(context);
     return Row(
       children: [
@@ -276,9 +341,8 @@ class EventDetailPage extends StatelessWidget {
         Expanded(
           child: Text(
             text,
-            style: theme.textTheme.bodyLarge?.copyWith(
-              color: theme.colorScheme.onSurfaceVariant,
-            ),
+            style: theme.textTheme.bodyLarge
+                ?.copyWith(color: theme.colorScheme.onSurfaceVariant),
           ),
         ),
       ],

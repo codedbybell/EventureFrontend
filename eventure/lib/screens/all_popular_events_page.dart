@@ -102,7 +102,7 @@ class _AllPopularEventsPageState extends State<AllPopularEventsPage> {
         Navigator.push(
           context,
           MaterialPageRoute(
-            builder: (context) => EventDetailPage(event: event),
+            builder: (context) => EventDetailPage(eventId: event.id),
           ),
         );
       },
